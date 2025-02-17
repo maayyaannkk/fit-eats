@@ -11,10 +11,11 @@ import (
 )
 
 type Config struct {
-	MongoURI  string
-	Database  string
-	JWTSecret string
-	Port      string
+	MongoURI         string
+	Database         string
+	JWTAccessSecret  string
+	JWTRefreshSecret string
+	Port             string
 }
 
 var projectConfig *Config
@@ -28,10 +29,11 @@ func GetConfig() *Config {
 		}
 
 		config := Config{
-			MongoURI:  os.Getenv("MONGO_URI"),
-			Database:  os.Getenv("DB_NAME"),
-			JWTSecret: os.Getenv("JWT_SECRET"),
-			Port:      os.Getenv("PORT"),
+			MongoURI:         os.Getenv("MONGO_URI"),
+			Database:         os.Getenv("DB_NAME"),
+			JWTAccessSecret:  os.Getenv("JWT_ACCESS_SECRET"),
+			JWTRefreshSecret: os.Getenv("JWT_REFRESH_SECRET"),
+			Port:             os.Getenv("PORT"),
 		}
 
 		projectConfig = &config

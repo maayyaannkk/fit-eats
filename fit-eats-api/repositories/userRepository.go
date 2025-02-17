@@ -5,6 +5,7 @@ import (
 	"fit-eats-api/models"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -29,7 +30,7 @@ func (r *UserRepository) GetUserByEmail(ctx context.Context, email string) (*mod
 	return &user, err
 }
 
-func (r *UserRepository) UpdateUser(ctx context.Context, userID string, updateData bson.M) error {
+func (r *UserRepository) UpdateUser(ctx context.Context, userID primitive.ObjectID, updateData bson.M) error {
 	filter := bson.M{"_id": userID} // Find user by ID
 
 	update := bson.M{"$set": updateData} // Update fields

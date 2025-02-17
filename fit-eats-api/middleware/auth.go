@@ -4,10 +4,9 @@ import (
 	"net/http"
 	"strings"
 
-	"fit-eats-api/config"
+	"fit-eats-api/utils"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v5"
 )
 
 func AuthMiddleware() gin.HandlerFunc {
@@ -20,14 +19,9 @@ func AuthMiddleware() gin.HandlerFunc {
 		}
 
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
-		secret := config.GetConfig().JWTSecret
 
-		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-			return []byte(secret), nil
-		})
-
-		if err != nil || !token.Valid {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+		if !utils.IsAccessTokenValid(tokenString) {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid jwt token"})
 			c.Abort()
 			return
 		}

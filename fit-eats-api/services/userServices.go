@@ -3,14 +3,12 @@ package services
 import (
 	"context"
 	"errors"
-	"time"
 
-	"fit-eats-api/config"
 	"fit-eats-api/models"
 	"fit-eats-api/repositories"
+	"fit-eats-api/utils"
 
-	"github.com/golang-jwt/jwt/v5"
-	"golang.org/x/crypto/bcrypt"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 type UserService struct {
@@ -22,31 +20,68 @@ func NewUserService(repo *repositories.UserRepository) *UserService {
 }
 
 func (s *UserService) RegisterUser(ctx context.Context, user *models.User) error {
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	hashedPassword, err := utils.GeneratePasswordHashFromPlainText(user.Password)
 	if err != nil {
 		return err
 	}
-	user.Password = string(hashedPassword)
+	user.Password = hashedPassword
 	return s.UserRepo.CreateUser(ctx, user)
 }
 
-func (s *UserService) Login(ctx context.Context, email, password string) (string, error) {
+func (s *UserService) Login(ctx context.Context, email, password string) (string, string, error) {
 	user, err := s.UserRepo.GetUserByEmail(ctx, email)
 	if err != nil {
-		return "", errors.New("invalid credentials")
+		return "", "", errors.New("user not found. Please register to continue")
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	if !utils.IsPasswordCorrect(user.Password, password) {
+		return "", "", errors.New("invalid credentials")
+	}
+
+	tokenString, err := utils.GenerateAccessJwt(user)
 	if err != nil {
+		return "", "", errors.New("unable to generate access token")
+	}
+	refreshString, err := utils.GenerateRefreshJwt(user)
+	if err != nil {
+		return "", "", errors.New("unable to generate refresh token")
+	}
+	err = s.UserRepo.UpdateUser(ctx, user.ID, bson.M{"refreshToken": refreshString})
+	if err != nil {
+		return "", "", errors.New("unable to save refresh token")
+	}
+	return tokenString, refreshString, err
+}
+
+func (s *UserService) RequestAccessToken(ctx context.Context, email string, refreshToken string) (string, error) {
+	user, err := s.UserRepo.GetUserByEmail(ctx, email)
+	if err != nil {
+		return "", errors.New("user not found")
+	}
+
+	if !utils.IsRefreshTokenValid(refreshToken) {
+		return "", errors.New("refresh token invalid")
+	}
+
+	if user.RefreshToken != refreshToken {
 		return "", errors.New("invalid credentials")
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"email": user.Email,
-		"exp":   time.Now().Add(time.Hour * 24).Unix(),
-	})
-
-	secret := config.GetConfig().JWTSecret
-	tokenString, err := token.SignedString([]byte(secret))
+	tokenString, err := utils.GenerateAccessJwt(user)
+	if err != nil {
+		return "", errors.New("unable to generate access token")
+	}
 	return tokenString, err
+}
+
+func (s *UserService) RevokeAccessToken(ctx context.Context, email string) error {
+	user, err := s.UserRepo.GetUserByEmail(ctx, email)
+	if err != nil {
+		return errors.New("user not found")
+	}
+	err = s.UserRepo.UpdateUser(ctx, user.ID, bson.M{"refreshToken": ""})
+	if err != nil {
+		return errors.New("could not revoke")
+	}
+	return err
 }
