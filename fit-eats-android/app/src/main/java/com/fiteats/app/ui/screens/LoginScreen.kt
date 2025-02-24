@@ -2,6 +2,9 @@ package com.fiteats.app.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -11,15 +14,18 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.fiteats.app.ui.navigation.Screens
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
+import com.fiteats.app.ui.viewModel.AuthState
+import com.fiteats.app.ui.viewModel.AuthViewModel
 
 @Composable
 fun LoginScreen(navController: NavController) {
+    val viewModel: AuthViewModel = viewModel()
+    val authState by viewModel.authState.collectAsState()
+
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
@@ -71,7 +77,7 @@ fun LoginScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
-                onClick = { /* TODO: Handle login logic */ },
+                onClick = { viewModel.login(email = email, password = password) },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(text = "Login")
@@ -81,6 +87,13 @@ fun LoginScreen(navController: NavController) {
 
             TextButton(onClick = { navController.navigate(Screens.RegisterScreen.route) }) {
                 Text(text = "Don't have an account? Register")
+            }
+
+            when (authState) {
+                is AuthState.Loading -> CircularProgressIndicator()
+                is AuthState.Success -> Text("Login Successful!")
+                is AuthState.Error -> Text("Error: ${(authState as AuthState.Error).message}")
+                else -> {}
             }
         }
     }

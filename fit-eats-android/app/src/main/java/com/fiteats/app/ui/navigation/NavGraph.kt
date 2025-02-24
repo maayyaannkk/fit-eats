@@ -4,7 +4,11 @@ import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.fiteats.app.ui.screens.LoginScreen
+import com.fiteats.app.ui.screens.RegisterScreen
+import com.fiteats.app.ui.screens.SplashScreen
 
 @Composable
 fun AppNavigation() {
@@ -35,7 +39,8 @@ fun AppNavigation() {
                 tween(250)
             )
         }) {
-        //composable(Screen.Login.route) { LoginScreen(navController) }
-        //composable(Screen.Register.route) { RegisterScreen(navController) }
+        composable(Screens.SplashScreen.route) { SplashScreen(navController) }
+        composable(Screens.LoginScreen.route) { LoginScreen(navController) }
+        composable(Screens.RegisterScreen.route) { RegisterScreen(navController) }
     }
 }

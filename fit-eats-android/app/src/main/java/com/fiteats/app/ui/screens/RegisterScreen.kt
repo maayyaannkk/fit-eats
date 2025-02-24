@@ -5,6 +5,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -18,14 +21,17 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
+import com.fiteats.app.ui.viewModel.AuthState
+import com.fiteats.app.ui.viewModel.AuthViewModel
 
 @Composable
 fun RegisterScreen(navController: NavController) {
+    val viewModel: AuthViewModel = viewModel()
+    val authState by viewModel.authState.collectAsState()
+
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -101,7 +107,7 @@ fun RegisterScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
-                onClick = { /* TODO: Handle registration logic */ },
+                onClick = { viewModel.register(name = name, email = email, password = password) },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(text = "Register")
@@ -111,6 +117,12 @@ fun RegisterScreen(navController: NavController) {
 
             TextButton(onClick = { navController.popBackStack() }) {
                 Text(text = "Already have an account? Login")
+            }
+            when (authState) {
+                is AuthState.Loading -> CircularProgressIndicator()
+                is AuthState.Success -> Text("Registration Successful!")
+                is AuthState.Error -> Text("Error: ${(authState as AuthState.Error).message}")
+                else -> {}
             }
         }
     }
