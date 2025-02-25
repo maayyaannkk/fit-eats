@@ -1,14 +1,20 @@
 package com.fiteats.app.ui.viewModel
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.fiteats.app.models.UserModel
 import com.fiteats.app.network.repository.AuthRepository
+import com.fiteats.app.utils.GsonUtil
+import com.fiteats.app.utils.UserUtils
+import com.google.gson.JsonParser
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class AuthViewModel : ViewModel() {
-    private val repository = AuthRepository()
+class AuthViewModel(application: Application) : AndroidViewModel(application = application) {
+    private val repository = AuthRepository(application)
+
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
     val authState: StateFlow<AuthState> = _authState
 
@@ -18,12 +24,30 @@ class AuthViewModel : ViewModel() {
             try {
                 val response = repository.login(email, password)
                 if (response.isSuccessful) {
+                    val loginResponse = response.body()!!
+                    val accessToken = loginResponse.get("accessToken").toString()
+                    val refreshToken = loginResponse.get("refreshToken").toString()
+                    val user =
+                        GsonUtil.gson.fromJson<UserModel>(
+                            loginResponse.get("user"),
+                            UserModel::class.java
+                        )
+                    UserUtils.saveUser(context = getApplication(), user, accessToken, refreshToken)
                     _authState.value = AuthState.Success(response.body()?.toString() ?: "")
                 } else {
+                    val errorJson = response.errorBody()?.string()
+                    val errorMessage = try {
+                        val jsonObject = JsonParser.parseString(errorJson).asJsonObject
+                        jsonObject.get("error")?.asString ?: "Login failed"
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        "Login failed"
+                    }
                     _authState.value =
-                        AuthState.Error(response.errorBody()?.string() ?: "Login failed")
+                        AuthState.Error(errorMessage)
                 }
             } catch (e: Exception) {
+                e.printStackTrace()
                 _authState.value = AuthState.Error("Network error: ${e.message}")
             }
         }
@@ -37,6 +61,16 @@ class AuthViewModel : ViewModel() {
                 if (response.isSuccessful) {
                     _authState.value = AuthState.Success(response.body()?.toString() ?: "")
                 } else {
+                    val errorJson = response.errorBody()?.string()
+                    val errorMessage = try {
+                        val jsonObject = JsonParser.parseString(errorJson).asJsonObject
+                        jsonObject.get("error")?.asString ?: "Registration failed"
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        "Registration failed"
+                    }
+                    _authState.value =
+                        AuthState.Error(errorMessage)
                     _authState.value =
                         AuthState.Error(response.errorBody()?.string() ?: "Registration failed")
                 }

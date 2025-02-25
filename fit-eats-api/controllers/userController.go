@@ -57,13 +57,13 @@ func (c *UserController) Login(ctx *gin.Context) {
 	timedContext, cancel := config.GetTimedContext()
 	defer cancel()
 
-	token, refreshToken, err := c.UserService.Login(timedContext, email, password)
+	user, token, refreshToken, err := c.UserService.Login(timedContext, email, password)
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"accessToken": token, "refreshToken": refreshToken})
+	ctx.JSON(http.StatusOK, gin.H{"accessToken": token, "refreshToken": refreshToken, "user": user})
 }
 
 func (c *UserController) RequestAccessToken(ctx *gin.Context) {

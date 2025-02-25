@@ -7,6 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type UserRepository struct {
@@ -26,7 +27,13 @@ func (r *UserRepository) CreateUser(ctx context.Context, user *models.User) erro
 
 func (r *UserRepository) GetUserByEmail(ctx context.Context, email string) (*models.User, error) {
 	var user models.User
-	err := r.Collection.FindOne(ctx, bson.M{"email": email}).Decode(&user)
+	err := r.Collection.FindOne(ctx, bson.M{"email": email}, options.FindOne().SetProjection(bson.M{"_id": 1, "email": 1, "password": 1})).Decode(&user)
+	return &user, err
+}
+
+func (r *UserRepository) GetUserProfileById(ctx context.Context, mongoUserId primitive.ObjectID) (*models.User, error) {
+	var user models.User
+	err := r.Collection.FindOne(ctx, bson.M{"_id": mongoUserId}, options.FindOne().SetProjection(bson.M{"password": 0, "refreshToken": 0})).Decode(&user)
 	return &user, err
 }
 

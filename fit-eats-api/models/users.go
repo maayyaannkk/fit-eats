@@ -10,5 +10,5 @@ type User struct {
 	DOB          string             `bson:"dob" json:"dob"`
 	Sex          string             `bson:"sex" json:"sex"`
 	Country      string             `bson:"country" json:"country"`
-	RefreshToken string             `bson:"refreshToken" json:"refreshToken"`
+	RefreshToken string             `bson:"refreshToken" json:"refreshToken,omitempty"`
 }

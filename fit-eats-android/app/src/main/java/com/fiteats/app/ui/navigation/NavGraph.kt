@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.fiteats.app.ui.screens.LoginScreen
+import com.fiteats.app.ui.screens.MainScreen
 import com.fiteats.app.ui.screens.RegisterScreen
 import com.fiteats.app.ui.screens.SplashScreen
 
@@ -42,5 +43,6 @@ fun AppNavigation() {
         composable(Screens.SplashScreen.route) { SplashScreen(navController) }
         composable(Screens.LoginScreen.route) { LoginScreen(navController) }
         composable(Screens.RegisterScreen.route) { RegisterScreen(navController) }
+        composable(Screens.MainScreen.route) { MainScreen(navController) }
     }
 }

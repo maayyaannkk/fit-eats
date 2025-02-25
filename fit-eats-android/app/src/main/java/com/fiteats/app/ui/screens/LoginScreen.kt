@@ -91,9 +91,21 @@ fun LoginScreen(navController: NavController) {
 
             when (authState) {
                 is AuthState.Loading -> CircularProgressIndicator()
-                is AuthState.Success -> Text("Login Successful!")
+                is AuthState.Success -> {}
                 is AuthState.Error -> Text("Error: ${(authState as AuthState.Error).message}")
                 else -> {}
+            }
+
+            LaunchedEffect(authState) {
+                if (authState is AuthState.Success) {
+                    navController.navigate(route = Screens.MainScreen.route) {
+                        navController.currentBackStackEntry?.let {
+                            popUpTo(it.destination.id) {
+                                inclusive = true
+                            }
+                        }
+                    }
+                }
             }
         }
     }

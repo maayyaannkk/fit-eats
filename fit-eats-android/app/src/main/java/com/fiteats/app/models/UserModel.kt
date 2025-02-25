@@ -20,8 +20,5 @@ data class UserModel(
     val sex: String?= null,
 
     @SerializedName("country")
-    val country: String?= null,
-
-    @SerializedName("refreshToken")
-    val refreshToken: String? = null
+    val country: String?= null
 )
