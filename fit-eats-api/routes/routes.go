@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRoutes(router *gin.Engine, userController *controllers.UserController) {
+func SetupUserRoutes(router *gin.Engine, userController *controllers.UserController) {
 	api := router.Group("/api")
 	{
 		api.POST("/register", userController.Register)
@@ -21,5 +21,15 @@ func SetupRoutes(router *gin.Engine, userController *controllers.UserController)
 			protected.GET("/profile", userController.GetUser)
 			protected.POST("/logout", userController.LogoutUser)
 		}
+	}
+}
+
+func SetupUserGoalRoutes(router *gin.Engine, userGoalController *controllers.UserGoalController) {
+	protected := router.Group("/api")
+	protected.Use(middleware.AuthMiddleware()) // Apply JWT auth middleware
+	{
+		protected.POST("/goals", userGoalController.RegisterUserGoal)
+		protected.GET("/goals", userGoalController.GetUserGoals)
+		protected.DELETE("/goals", userGoalController.DeleteUserGoal)
 	}
 }

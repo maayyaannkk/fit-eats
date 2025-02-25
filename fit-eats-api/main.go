@@ -27,11 +27,17 @@ func main() {
 	userService := services.NewUserService(userRepo)
 	userController := controllers.NewUserController(userService)
 
+	// Initialize repositories, services, and controllers
+	userGoalRepo := repositories.NewUserGoalRepository(db)
+	userGoalService := services.NewUserGoalService(userGoalRepo)
+	userGoalController := controllers.NewUserGoalController(userGoalService)
+
 	// Set up Gin router
 	router := gin.Default()
 
 	// Define API routes
-	routes.SetupRoutes(router, userController)
+	routes.SetupUserRoutes(router, userController)
+	routes.SetupUserGoalRoutes(router, userGoalController)
 
 	// Start the server
 	fmt.Println("Server is running on port " + cfg.Port)

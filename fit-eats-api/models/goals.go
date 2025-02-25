@@ -25,14 +25,21 @@ const (
 )
 
 type Goal struct {
-	ID                       primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
-	UserId                   primitive.ObjectID `bson:"userId" json:"userId"`
-	GoalDuration             GoalDurationType   `bson:"goalDuration" json:"goalDuration"`
-	GoalWeightInKg           float64            `bson:"goalWeightInKg" json:"goalWeightInKg"`
-	GoalFatPercentage        float64            `bson:"goalFatPercentage" json:"goalFatPercentage"`
-	GoalStartDate            time.Time          `bson:"goalStartDate" json:"goalStartDate"`
-	GoalEndDate              time.Time          `bson:"goalEndDate" json:"goalEndDate"`
-	DailyMaintenanceCalories float64            `bson:"dailyMaintenanceCalories" json:"dailyMaintenanceCalories"`
-	TargetDailyCalories      float64            `bson:"targetDailyCalories" json:"targetDailyCalories"`
-	WorkoutRoutine           string             `bson:"workoutRoutine" json:"workoutRoutine"`
+	ID     primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
+	UserId primitive.ObjectID `bson:"userId" json:"userId"`
+
+	GoalDuration      GoalDurationType `bson:"goalDuration" json:"goalDuration"`
+	GoalWeightInKg    float64          `bson:"goalWeightInKg" json:"goalWeightInKg"`
+	GoalFatPercentage float64          `bson:"goalFatPercentage" json:"goalFatPercentage"`
+
+	GoalStartDate time.Time `bson:"goalStartDate" json:"goalStartDate"`
+	GoalEndDate   time.Time `bson:"goalEndDate" json:"goalEndDate"`
+
+	DailyMaintenanceCalories float64 `bson:"dailyMaintenanceCalories" json:"dailyMaintenanceCalories"`
+	TargetDailyCalories      float64 `bson:"targetDailyCalories" json:"targetDailyCalories"`
+	TargetDailyMacrosProtein float64 `bson:"targetDailyMacrosProtein" json:"targetDailyMacrosProtein"`
+	TargetDailyMacrosCarbs   float64 `bson:"targetDailyMacrosCarbs" json:"targetDailyMacrosCarbs"`
+	TargetDailyMacrosFats    float64 `bson:"targetDailyMacrosFats" json:"targetDailyMacrosFats"`
+
+	WorkoutRoutine string `bson:"workoutRoutine" json:"workoutRoutine"`
 }
