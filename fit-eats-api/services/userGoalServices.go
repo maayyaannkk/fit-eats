@@ -35,4 +35,5 @@ func (s *UserGoalService) DeleteUserGoals(ctx context.Context, goalId primitive.
 	if err != nil {
 		return errors.New("goals not found")
 	}
+	return nil
 }
