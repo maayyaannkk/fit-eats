@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"errors"
-	"reflect"
 
 	"fit-eats-api/models"
 	"fit-eats-api/repositories"
@@ -31,21 +30,23 @@ func (s *UserService) RegisterUser(ctx context.Context, user *models.User) error
 
 func (s *UserService) UpdateUser(ctx context.Context, user *models.User) error {
 	update := bson.M{}
-	v := reflect.ValueOf(user).Elem()
-	t := v.Type()
 
-	for i := 0; i < v.NumField(); i++ {
-		field := v.Field(i)
-		if field.IsZero() {
-			continue
-		}
-		fieldName := t.Field(i).Tag.Get("bson")
-		if fieldName == "" {
-			fieldName = t.Field(i).Name
-		}
-		update[fieldName] = field.Interface()
+	if user.Name != "" {
+		update["name"] = user.Name
 	}
-	delete(update, "email")
+	if user.Age != "" {
+		update["age"] = user.Age
+	}
+	if user.Sex != "" {
+		update["sex"] = user.Sex
+	}
+	if user.Country != "" {
+		update["country"] = user.Country
+	}
+
+	if len(update) == 0 {
+		return nil // Nothing to update
+	}
 
 	return s.UserRepo.UpdateUser(ctx, user.ID, update)
 }
@@ -113,4 +114,12 @@ func (s *UserService) RevokeAccessToken(ctx context.Context, email string) error
 		return errors.New("could not revoke")
 	}
 	return err
+}
+
+func (s *UserService) GetUser(ctx context.Context, email string) (*models.User, error) {
+	user, err := s.UserRepo.GetUserProfileByEmailId(ctx, email)
+	if err != nil {
+		return nil, errors.New("user not found")
+	}
+	return user, err
 }

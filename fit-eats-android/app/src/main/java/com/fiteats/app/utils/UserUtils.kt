@@ -30,17 +30,23 @@ object UserUtils {
         )
     }
 
-    fun saveUser(context: Context, user: UserModel, accessToken: String?, refreshToken: String?) {
+    fun getUserPreference(context: Context): SharedPreferences {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    }
+
+    fun saveUserToken(context: Context, accessToken: String?, refreshToken: String?) {
+        val encryptedPrefs = getEncryptedPrefs(context)
+        encryptedPrefs.edit().putString(KEY_ACCESS_TOKEN, accessToken).apply()
+        encryptedPrefs.edit().putString(KEY_REFRESH_TOKEN, refreshToken).apply()
+    }
+
+    fun saveUserProfile(context: Context, user: UserModel) {
         val sharedPreferences: SharedPreferences =
             context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
         val userJson = Gson().toJson(user)
         editor.putString(KEY_USER, userJson)
         editor.apply()
-
-        val encryptedPrefs = getEncryptedPrefs(context)
-        encryptedPrefs.edit().putString(KEY_ACCESS_TOKEN, accessToken).apply()
-        encryptedPrefs.edit().putString(KEY_REFRESH_TOKEN, refreshToken).apply()
     }
 
     fun getUser(context: Context): UserModel? {

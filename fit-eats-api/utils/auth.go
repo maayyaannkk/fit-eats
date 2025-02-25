@@ -14,7 +14,7 @@ import (
 func GenerateAccessJwt(user *models.User) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"email": user.Email,
-		"exp":   time.Now().Add(time.Minute * 15).Unix(),
+		"exp":   time.Now().Add(time.Hour * 24).Unix(),
 	})
 	secret := config.GetConfig().JWTAccessSecret
 	tokenString, err := token.SignedString([]byte(secret))

@@ -6,8 +6,10 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
+import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Query
 
 interface FitEatsApi {
     @FormUrlEncoded
@@ -23,6 +25,9 @@ interface FitEatsApi {
     @PUT("profile")
     suspend fun update(@Body userModel: UserModel): Response<JsonObject>
 
+    @GET("profile")
+    suspend fun getProfile(@Query("emailId") emailId: String): Response<JsonObject>
+
     @FormUrlEncoded
     @POST("requestAccessToken")
     suspend fun requestAccessToken(
@@ -33,7 +38,7 @@ interface FitEatsApi {
     @FormUrlEncoded
     @POST("logout")
     suspend fun logout(
-        @Field("email") email: String
+        @Field("emailId") email: String
     ): Response<JsonObject>
 
 }

@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -25,88 +26,116 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.fiteats.app.models.UserModel
 import com.fiteats.app.ui.viewModel.MainViewModel
-import com.fiteats.app.utils.UserUtils
 
 @Composable
-fun ProfileScreen(user: UserModel = UserUtils.getUser(LocalContext.current)!!) {
-    var showDialog by remember { mutableStateOf(false) }
+fun ProfileScreen(onLogout: () -> Unit) {
+    val mainViewModel: MainViewModel = viewModel()
+    val userState by mainViewModel.user.observeAsState()
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(16.dp),
-        contentAlignment = Alignment.TopCenter
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+    LaunchedEffect(Unit) { mainViewModel.getProfile() }
+
+    var showDialog by remember { mutableStateOf(false) }
+    userState?.let { user ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(16.dp),
+            contentAlignment = Alignment.TopCenter
         ) {
-            Box(contentAlignment = Alignment.TopEnd) {
-                // Profile Image Placeholder
-                Box(
-                    modifier = Modifier
-                        .size(100.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = user.name.first().uppercase(),
-                        style = MaterialTheme.typography.headlineLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    IconButton(
-                        onClick = { showDialog = true },
-                        modifier = Modifier.align(Alignment.BottomEnd)
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Box(contentAlignment = Alignment.TopEnd) {
+                    // Profile Image Placeholder
+                    Box(
+                        modifier = Modifier
+                            .size(100.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.Default.Edit, contentDescription = "Edit Profile")
+                        Text(
+                            text = user.name.first().uppercase(),
+                            style = MaterialTheme.typography.headlineLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.align(Alignment.BottomEnd)
+                        ) {
+                            IconButton(
+                                onClick = { showDialog = true },
+                            ) {
+                                Icon(Icons.Default.Edit, contentDescription = "Edit Profile")
+                            }
+                            IconButton(
+                                onClick = {
+                                    mainViewModel.logout()
+                                    onLogout()
+                                },
+                            ) {
+                                Icon(
+                                    Icons.AutoMirrored.Filled.ExitToApp,
+                                    contentDescription = "Logout"
+                                )
+                            }
+                        }
                     }
                 }
+
+                Text(
+                    text = user.name,
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = user.email,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    UserInfoRow(label = "Age", value = user.age?.toString() ?: "Not provided")
+                    UserInfoRow(label = "Sex", value = user.sex ?: "Not provided")
+                    UserInfoRow(label = "Country", value = user.country ?: "Not provided")
+                }
+
             }
-
-            Text(
-                text = user.name,
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = user.email,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                UserInfoRow(label = "Age", value = user.age?.toString() ?: "Not provided")
-                UserInfoRow(label = "Sex", value = user.sex ?: "Not provided")
-                UserInfoRow(label = "Country", value = user.country ?: "Not provided")
-            }
-
         }
-    }
-
-    if (showDialog) {
-        EditProfileDialog(user = user, onDismiss = { showDialog = false })
+        if (showDialog) {
+            EditProfileDialog(
+                user = user,
+                onDismiss = { showDialog = false },
+                onSave = {
+                    mainViewModel.update(it)
+                    showDialog = false
+                }
+            )
+        }
     }
 }
 
@@ -132,9 +161,7 @@ fun UserInfoRow(label: String, value: String) {
 }
 
 @Composable
-fun EditProfileDialog(user: UserModel, onDismiss: () -> Unit) {
-    val mainViewModel: MainViewModel = viewModel()
-
+fun EditProfileDialog(user: UserModel, onDismiss: () -> Unit, onSave: (UserModel) -> Unit) {
     var name by remember { mutableStateOf(user.name.toString()) }
     var age by remember { mutableStateOf(user.age?.toString() ?: "") }
     var sex by remember { mutableStateOf(user.sex ?: "") }
@@ -189,7 +216,7 @@ fun EditProfileDialog(user: UserModel, onDismiss: () -> Unit) {
                     TextButton(onClick = onDismiss) { Text("Cancel") }
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(onClick = {
-                        mainViewModel.update(
+                        onSave(
                             UserModel(
                                 id = user.id,
                                 email = user.email,
@@ -210,5 +237,5 @@ fun EditProfileDialog(user: UserModel, onDismiss: () -> Unit) {
 @Preview
 @Composable
 fun ProfileScreenPreview() {
-    ProfileScreen()
+    ProfileScreen(onLogout = { })
 }

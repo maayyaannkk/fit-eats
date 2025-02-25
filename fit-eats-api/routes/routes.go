@@ -18,6 +18,7 @@ func SetupRoutes(router *gin.Engine, userController *controllers.UserController)
 		protected.Use(middleware.AuthMiddleware()) // Apply JWT auth middleware
 		{
 			protected.PUT("/profile", userController.UpdateUser)
+			protected.GET("/profile", userController.GetUser)
 			protected.POST("/logout", userController.LogoutUser)
 		}
 	}

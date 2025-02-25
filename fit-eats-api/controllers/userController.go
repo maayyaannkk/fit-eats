@@ -124,3 +124,23 @@ func (c *UserController) UpdateUser(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusCreated, gin.H{"message": "User updated successfully"})
 }
+
+func (c *UserController) GetUser(ctx *gin.Context) {
+	emailId, error := ctx.GetQuery("emailId")
+	if !error {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format"})
+		return
+	}
+
+	timedContext, cancel := config.GetTimedContext()
+	defer cancel()
+
+	// Register user
+	user, err := c.UserService.GetUser(timedContext, emailId)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Could not get user"})
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, gin.H{"user": user})
+}

@@ -37,6 +37,12 @@ func (r *UserRepository) GetUserProfileById(ctx context.Context, mongoUserId pri
 	return &user, err
 }
 
+func (r *UserRepository) GetUserProfileByEmailId(ctx context.Context, emailId string) (*models.User, error) {
+	var user models.User
+	err := r.Collection.FindOne(ctx, bson.M{"email": emailId}, options.FindOne().SetProjection(bson.M{"password": 0, "refreshToken": 0})).Decode(&user)
+	return &user, err
+}
+
 func (r *UserRepository) UpdateUser(ctx context.Context, userID primitive.ObjectID, updateData bson.M) error {
 	filter := bson.M{"_id": userID} // Find user by ID
 

@@ -32,7 +32,8 @@ class AuthViewModel(application: Application) : AndroidViewModel(application = a
                             loginResponse.get("user"),
                             UserModel::class.java
                         )
-                    UserUtils.saveUser(context = getApplication(), user, accessToken, refreshToken)
+                    UserUtils.saveUserProfile(context = getApplication(), user)
+                    UserUtils.saveUserToken(context = getApplication(), accessToken, refreshToken)
                     _authState.value = AuthState.Success(response.body()?.toString() ?: "")
                 } else {
                     val errorJson = response.errorBody()?.string()

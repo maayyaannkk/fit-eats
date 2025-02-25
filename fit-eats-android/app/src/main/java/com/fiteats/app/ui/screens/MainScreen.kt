@@ -17,13 +17,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.fiteats.app.ui.navigation.BottomNavItem
+import com.fiteats.app.ui.navigation.Screens
 import com.fiteats.app.ui.screens.main.HomeScreen
 import com.fiteats.app.ui.screens.main.MealScreen
 import com.fiteats.app.ui.screens.main.ProfileScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen() {
+fun MainScreen(mainNavController: NavController) {
     val navController = rememberNavController()
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
     val title = when (currentRoute) {
@@ -49,7 +50,17 @@ fun MainScreen() {
         ) {
             composable(BottomNavItem.Home.route) { HomeScreen() }
             composable(BottomNavItem.Meals.route) { MealScreen() }
-            composable(BottomNavItem.Profile.route) { ProfileScreen() }
+            composable(BottomNavItem.Profile.route) {
+                ProfileScreen {
+                    mainNavController.navigate(route = Screens.SplashScreen.route) {
+                        mainNavController.currentBackStackEntry?.let {
+                            popUpTo(it.destination.id) {
+                                inclusive = true
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -84,5 +95,5 @@ fun BottomNavigationBar(navController: NavController) {
 @Preview(showBackground = true)
 @Composable
 fun MainScreenPreview() {
-    MainScreen()
+    MainScreen(rememberNavController())
 }
