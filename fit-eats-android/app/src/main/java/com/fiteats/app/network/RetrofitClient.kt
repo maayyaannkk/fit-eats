@@ -17,19 +17,24 @@ object RetrofitClient {
     }
 
     private var api: FitEatsApi? = null
+
+    @Synchronized
     fun createApi(context: Context): FitEatsApi {
         if (api != null) return api!!
+
         val client = OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor)
             .addInterceptor { chain ->
+                val requestBuilder = chain.request().newBuilder()
+
                 if (UserUtils.isLoggedIn(context)) {
                     val token = UserUtils.getAccessToken(context)
-                    val request = chain.request().newBuilder()
-                        .addHeader("Authorization", "Bearer $token")
-                        .build()
-                    chain.proceed(request)
+                    if (!token.isNullOrBlank()) {
+                        requestBuilder.addHeader("Authorization", "Bearer $token")
+                    }
                 }
-                chain.proceed(request = chain.request())
+
+                chain.proceed(requestBuilder.build())
             }
             .build()
 
@@ -39,6 +44,7 @@ object RetrofitClient {
             .client(client)
             .build()
             .create(FitEatsApi::class.java)
+
         return api!!
     }
 }

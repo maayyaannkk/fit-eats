@@ -43,6 +43,6 @@ fun AppNavigation() {
         composable(Screens.SplashScreen.route) { SplashScreen(navController) }
         composable(Screens.LoginScreen.route) { LoginScreen(navController) }
         composable(Screens.RegisterScreen.route) { RegisterScreen(navController) }
-        composable(Screens.MainScreen.route) { MainScreen(navController) }
+        composable(Screens.MainScreen.route) { MainScreen() }
     }
 }

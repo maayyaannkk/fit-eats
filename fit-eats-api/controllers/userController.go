@@ -104,3 +104,23 @@ func (c *UserController) LogoutUser(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, gin.H{"message": "Logout user"})
 }
+
+func (c *UserController) UpdateUser(ctx *gin.Context) {
+	var user models.User
+	if err := ctx.ShouldBindJSON(&user); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format"})
+		return
+	}
+
+	timedContext, cancel := config.GetTimedContext()
+	defer cancel()
+
+	// Register user
+	err := c.UserService.UpdateUser(timedContext, &user)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Could not update user"})
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, gin.H{"message": "User updated successfully"})
+}

@@ -1,7 +1,6 @@
 package com.fiteats.app.models
 
 import com.google.gson.annotations.SerializedName
-import java.util.Date
 
 data class UserModel(
     @SerializedName("id")
@@ -13,8 +12,8 @@ data class UserModel(
     @SerializedName("email")
     val email: String,
 
-    @SerializedName("dob")
-    val dob: Date?= null,
+    @SerializedName("age")
+    val age: String?= null,
 
     @SerializedName("sex")
     val sex: String?= null,

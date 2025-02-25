@@ -17,9 +17,7 @@ func SetupRoutes(router *gin.Engine, userController *controllers.UserController)
 		protected := api.Group("/")
 		protected.Use(middleware.AuthMiddleware()) // Apply JWT auth middleware
 		{
-			protected.GET("/profile", func(ctx *gin.Context) {
-				ctx.JSON(200, gin.H{"message": "Welcome to your profile!"})
-			})
+			protected.PUT("/profile", userController.UpdateUser)
 			protected.POST("/logout", userController.LogoutUser)
 		}
 	}

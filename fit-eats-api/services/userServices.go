@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"reflect"
 
 	"fit-eats-api/models"
 	"fit-eats-api/repositories"
@@ -26,6 +27,27 @@ func (s *UserService) RegisterUser(ctx context.Context, user *models.User) error
 	}
 	user.Password = hashedPassword
 	return s.UserRepo.CreateUser(ctx, user)
+}
+
+func (s *UserService) UpdateUser(ctx context.Context, user *models.User) error {
+	update := bson.M{}
+	v := reflect.ValueOf(user).Elem()
+	t := v.Type()
+
+	for i := 0; i < v.NumField(); i++ {
+		field := v.Field(i)
+		if field.IsZero() {
+			continue
+		}
+		fieldName := t.Field(i).Tag.Get("bson")
+		if fieldName == "" {
+			fieldName = t.Field(i).Name
+		}
+		update[fieldName] = field.Interface()
+	}
+	delete(update, "email")
+
+	return s.UserRepo.UpdateUser(ctx, user.ID, update)
 }
 
 func (s *UserService) Login(ctx context.Context, email, password string) (*models.User, string, string, error) {
