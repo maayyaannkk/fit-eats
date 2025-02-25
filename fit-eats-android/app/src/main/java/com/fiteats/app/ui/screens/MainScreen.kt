@@ -20,6 +20,7 @@ import com.fiteats.app.ui.navigation.BottomNavItem
 import com.fiteats.app.ui.navigation.Screens
 import com.fiteats.app.ui.screens.main.HomeScreen
 import com.fiteats.app.ui.screens.main.MealScreen
+import com.fiteats.app.ui.screens.main.MyGoalsScreen
 import com.fiteats.app.ui.screens.main.ProfileScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -30,6 +31,7 @@ fun MainScreen(mainNavController: NavController) {
     val title = when (currentRoute) {
         BottomNavItem.Meals.route -> "Meals"
         BottomNavItem.Profile.route -> "Profile"
+        BottomNavItem.Goals.route -> "Goals"
         else -> "Home"
     }
 
@@ -50,6 +52,7 @@ fun MainScreen(mainNavController: NavController) {
         ) {
             composable(BottomNavItem.Home.route) { HomeScreen() }
             composable(BottomNavItem.Meals.route) { MealScreen() }
+            composable(BottomNavItem.Goals.route) { MyGoalsScreen() }
             composable(BottomNavItem.Profile.route) {
                 ProfileScreen {
                     mainNavController.navigate(route = Screens.SplashScreen.route) {
@@ -67,7 +70,8 @@ fun MainScreen(mainNavController: NavController) {
 
 @Composable
 fun BottomNavigationBar(navController: NavController) {
-    val items = listOf(BottomNavItem.Home, BottomNavItem.Meals, BottomNavItem.Profile)
+    val items =
+        listOf(BottomNavItem.Home, BottomNavItem.Meals, BottomNavItem.Goals, BottomNavItem.Profile)
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
 
     NavigationBar {
