@@ -40,6 +40,9 @@ func (s *UserService) UpdateUser(ctx context.Context, user *models.User) error {
 	if user.Sex != "" {
 		update["sex"] = user.Sex
 	}
+	if user.HeightInCm != 0 {
+		update["heightInCm"] = user.HeightInCm
+	}
 	if user.Country != "" {
 		update["country"] = user.Country
 	}

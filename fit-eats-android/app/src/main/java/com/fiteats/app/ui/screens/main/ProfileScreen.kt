@@ -121,6 +121,11 @@ fun ProfileScreen(onLogout: () -> Unit) {
                 ) {
                     UserInfoRow(label = "Age", value = user.age?.toString() ?: "Not provided")
                     UserInfoRow(label = "Sex", value = user.sex ?: "Not provided")
+                    UserInfoRow(
+                        label = "Height(cm)",
+                        value = user.heightInCm?.let { "%.2f".format(it) }
+                            ?: "Not provided"
+                    )
                     UserInfoRow(label = "Country", value = user.country ?: "Not provided")
                 }
 
@@ -165,6 +170,9 @@ fun EditProfileDialog(user: UserModel, onDismiss: () -> Unit, onSave: (UserModel
     var name by remember { mutableStateOf(user.name.toString()) }
     var age by remember { mutableStateOf(user.age?.toString() ?: "") }
     var sex by remember { mutableStateOf(user.sex ?: "") }
+    var height by remember {
+        mutableStateOf(user.heightInCm?.let { user.heightInCm.toString() } ?: "")
+    }
     var country by remember { mutableStateOf(user.country ?: "") }
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -173,7 +181,6 @@ fun EditProfileDialog(user: UserModel, onDismiss: () -> Unit, onSave: (UserModel
                 .fillMaxWidth()
                 .padding(16.dp),
             shape = RoundedCornerShape(16.dp),
-            //elevation = 8.dp
         ) {
             Column(
                 modifier = Modifier.padding(16.dp),
@@ -203,6 +210,12 @@ fun EditProfileDialog(user: UserModel, onDismiss: () -> Unit, onSave: (UserModel
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
+                    value = height,
+                    onValueChange = { height = it },
+                    label = { Text("Height (cm)") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
                     value = country,
                     onValueChange = { country = it },
                     label = { Text("Country") },
@@ -223,6 +236,7 @@ fun EditProfileDialog(user: UserModel, onDismiss: () -> Unit, onSave: (UserModel
                                 name = name,
                                 age = age,
                                 sex = sex,
+                                heightInCm = height.toDouble(),
                                 country = country
                             )
                         )

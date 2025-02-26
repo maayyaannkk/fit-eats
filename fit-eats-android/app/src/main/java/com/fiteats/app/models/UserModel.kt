@@ -13,11 +13,14 @@ data class UserModel(
     val email: String,
 
     @SerializedName("age")
-    val age: String?= null,
+    val age: String? = null,
+
+    @SerializedName("heightInCm")
+    val heightInCm: Double? = null,
 
     @SerializedName("sex")
-    val sex: String?= null,
+    val sex: String? = null,
 
     @SerializedName("country")
-    val country: String?= null
+    val country: String? = null
 )

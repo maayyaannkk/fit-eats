@@ -6,10 +6,13 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.fiteats.app.ui.screens.AddGoalScreen
 import com.fiteats.app.ui.screens.LoginScreen
 import com.fiteats.app.ui.screens.MainScreen
 import com.fiteats.app.ui.screens.RegisterScreen
 import com.fiteats.app.ui.screens.SplashScreen
+import com.fiteats.app.ui.screens.goals.AddOverallGoalScreen
+import com.fiteats.app.ui.screens.goals.AddWeeklyGoalScreen
 
 @Composable
 fun AppNavigation() {
@@ -44,5 +47,8 @@ fun AppNavigation() {
         composable(Screens.LoginScreen.route) { LoginScreen(navController) }
         composable(Screens.RegisterScreen.route) { RegisterScreen(navController) }
         composable(Screens.MainScreen.route) { MainScreen(navController) }
+        composable(Screens.AddGoalScreen.route) { AddGoalScreen(navController) }
+        composable(Screens.AddOverallGoalScreen.route) { AddOverallGoalScreen(navController) }
+        composable(Screens.AddWeeklyGoalScreen.route) { AddWeeklyGoalScreen(navController) }
     }
 }

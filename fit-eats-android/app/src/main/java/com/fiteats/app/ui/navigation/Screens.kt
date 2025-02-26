@@ -13,6 +13,9 @@ sealed class Screens(val route: String) {
     object LoginScreen : Screens("login")
     object RegisterScreen : Screens("register")
     object MainScreen : Screens("main")
+    object AddGoalScreen : Screens("add_goal")
+    object AddOverallGoalScreen : Screens("add_goal_overall")
+    object AddWeeklyGoalScreen : Screens("add_goal_weekly")
 }
 
 sealed class BottomNavItem(val route: String, val icon: ImageVector, val label: String) {

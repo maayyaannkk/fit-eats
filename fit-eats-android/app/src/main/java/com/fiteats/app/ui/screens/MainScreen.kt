@@ -52,7 +52,12 @@ fun MainScreen(mainNavController: NavController) {
         ) {
             composable(BottomNavItem.Home.route) { HomeScreen() }
             composable(BottomNavItem.Meals.route) { MealScreen() }
-            composable(BottomNavItem.Goals.route) { MyGoalsScreen() }
+            composable(BottomNavItem.Goals.route) {
+                MyGoalsScreen(
+                    onAddWeeklyGoal = { mainNavController.navigate(route = Screens.AddWeeklyGoalScreen.route) },
+                    onAddOverallGoal = { mainNavController.navigate(route = Screens.AddOverallGoalScreen.route) }
+                )
+            }
             composable(BottomNavItem.Profile.route) {
                 ProfileScreen {
                     mainNavController.navigate(route = Screens.SplashScreen.route) {
