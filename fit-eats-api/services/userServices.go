@@ -46,6 +46,9 @@ func (s *UserService) UpdateUser(ctx context.Context, user *models.User) error {
 	if user.Country != "" {
 		update["country"] = user.Country
 	}
+	if user.DietPreferences != nil {
+		update["dietPreferences"] = user.DietPreferences
+	}
 
 	if len(update) == 0 {
 		return nil // Nothing to update
