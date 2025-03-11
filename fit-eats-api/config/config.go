@@ -16,6 +16,7 @@ type Config struct {
 	JWTAccessSecret  string
 	JWTRefreshSecret string
 	Port             string
+	GeminiApiKey     string
 }
 
 var projectConfig *Config
@@ -34,6 +35,7 @@ func GetConfig() *Config {
 			JWTAccessSecret:  os.Getenv("JWT_ACCESS_SECRET"),
 			JWTRefreshSecret: os.Getenv("JWT_REFRESH_SECRET"),
 			Port:             os.Getenv("PORT"),
+			GeminiApiKey:     os.Getenv("GEMINI_API_KEY"),
 		}
 
 		projectConfig = &config
