@@ -14,3 +14,8 @@ type User struct {
 	DietPreferences []string           `bson:"dietPreferences" json:"dietPreferences,omitempty"`
 	RefreshToken    string             `bson:"refreshToken" json:"refreshToken,omitempty"`
 }
+
+// IsProfileComplete checks if the user profile is complete based on certain fields.
+func (user *User) IsProfileComplete() bool {
+	return len(user.DietPreferences) > 0 && user.HeightInCm != 0 && user.Age != "" && user.Sex != "" && user.Country != ""
+}

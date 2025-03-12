@@ -8,7 +8,7 @@ import (
 
 var validate = validator.New()
 
-func ValidateStruct(data interface{}) map[string]string {
+func ValidateStruct(data any) map[string]string {
 	err := validate.Struct(data)
 	if err == nil {
 		return nil

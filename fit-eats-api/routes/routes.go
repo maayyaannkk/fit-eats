@@ -28,8 +28,16 @@ func SetupUserGoalRoutes(router *gin.Engine, userGoalController *controllers.Use
 	protected := router.Group("/api")
 	protected.Use(middleware.AuthMiddleware()) // Apply JWT auth middleware
 	{
-		protected.POST("/goals", userGoalController.RegisterUserGoal)
-		protected.GET("/goals", userGoalController.GetUserGoals)
-		protected.DELETE("/goals", userGoalController.DeleteUserGoal)
+		protected.GET("/getIdealWeight", userGoalController.GetIdealWeightRange)
+		protected.GET("/getGoalDuration", userGoalController.GetGoalDuration)
+		protected.GET("/getTdee", userGoalController.GetTdee)
+		protected.GET("/getMacros", userGoalController.GetMacros)
+
+		protected.POST("/registerMainGoal", userGoalController.RegisterUserGoal)
+		protected.POST("/registerWeeklyGoal", userGoalController.RegisterWeeklyUserGoal)
+
+		protected.GET("/getGoals", userGoalController.GetUserGoals)
+		protected.DELETE("/deleteMainGoal", userGoalController.DeleteUserMainGoal)
+		protected.DELETE("/deleteWeeklyGoal", userGoalController.DeleteUserWeeklyGoal)
 	}
 }

@@ -19,9 +19,29 @@ func NewUserGoalRepository(db *mongo.Database) *UserGoalRepository {
 	}
 }
 
-func (r *UserGoalRepository) CreateUserGoal(ctx context.Context, user *models.Goal) error {
-	_, err := r.Collection.InsertOne(ctx, user)
+func (r *UserGoalRepository) CreateMainUserGoal(ctx context.Context, mainGoal *models.Goal) error {
+	_, err := r.Collection.InsertOne(ctx, mainGoal)
 	return err
+}
+
+func (r *UserGoalRepository) CreateWeeklyUserGoal(ctx context.Context, mainGoalId primitive.ObjectID, weeklyGoal *models.WeeklyGoal) error {
+	weeklyGoal.ID = primitive.NewObjectID() // Generate ID for the weekly goal
+
+	filter := bson.M{"_id": mainGoalId}
+
+	update := bson.M{"$push": bson.M{"weeklyGoals": weeklyGoal}}
+
+	result, err := r.Collection.UpdateOne(ctx, filter, update)
+
+	if err != nil {
+		return err
+	}
+
+	if result.ModifiedCount == 0 {
+		return mongo.ErrNoDocuments // Or a custom error if you prefer
+	}
+
+	return nil
 }
 
 func (r *UserGoalRepository) GetUserGoalsByUserId(ctx context.Context, mongoUserId primitive.ObjectID) ([]models.Goal, error) {
@@ -40,17 +60,14 @@ func (r *UserGoalRepository) GetUserGoalsByUserId(ctx context.Context, mongoUser
 	return userGoals, nil
 }
 
-func (r *UserGoalRepository) UpdateUserGoal(ctx context.Context, goalId primitive.ObjectID, updateData bson.M) error {
+func (r *UserGoalRepository) DeleteMainUserGoal(ctx context.Context, goalId primitive.ObjectID) error {
 	filter := bson.M{"_id": goalId} // Find by ID
-
-	update := bson.M{"$set": updateData} // Update fields
-
-	_, err := r.Collection.UpdateOne(ctx, filter, update)
+	_, err := r.Collection.DeleteOne(ctx, filter)
 	return err
 }
 
-func (r *UserGoalRepository) DeleteUserGoal(ctx context.Context, goalId primitive.ObjectID) error {
-	filter := bson.M{"_id": goalId} // Find by ID
+func (r *UserGoalRepository) DeleteWeeklyUserGoal(ctx context.Context, mainGoalId primitive.ObjectID, weeklyGoalId primitive.ObjectID) error {
+	filter := bson.M{"_id": mainGoalId, "weeklyGoals._id": weeklyGoalId} // Find by ID
 	_, err := r.Collection.DeleteOne(ctx, filter)
 	return err
 }

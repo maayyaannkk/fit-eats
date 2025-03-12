@@ -109,8 +109,8 @@ func GetGoalDurationModel() *genai.GenerativeModel {
 					"type": {
 						Type: genai.TypeString,
 						Enum: []string{
-							"fat_loss",
-							"muscle_gain",
+							"Fat loss",
+							"Muscle gain",
 						},
 					},
 					"pace_options": {
@@ -468,73 +468,76 @@ func GetMealModel() *genai.GenerativeModel {
 	return mealModel
 }
 
-func GetWeightRangePrompt(currentWeightInKg string, currentBodyFatPercentage string, user models.User) string {
+func GetWeightRangePrompt(user models.User, currentWeightInKg float32, currentBodyFatPercentage float32) string {
 	bodyFatString := ""
-	if currentBodyFatPercentage != "" {
-		bodyFatString = fmt.Sprintf("with approx %s%% body fat, ", currentBodyFatPercentage)
+	if currentBodyFatPercentage != 0 {
+		bodyFatString = fmt.Sprintf("with approx %.1f%% body fat, ", currentBodyFatPercentage)
 	}
 
-	return fmt.Sprintf("I am %s kg %s, %s year old %s, and %.1f cm in height."+
+	return fmt.Sprintf("I am %.1f kg %s, %s year old %s, and %.1f cm in height."+
 		" What should be my ideal weight range in kg with respective body fat percentage."+
 		" Add maximum 1 line for description.",
 		currentWeightInKg, bodyFatString, user.Age, user.Sex, user.HeightInCm)
 }
 
-func GetGoalDurationPrompt(currentWeightInKg string, currentBodyFatPercentage string, goalWeightInKg string, goalBodyFatPercentage string, user models.User) string {
+func GetGoalDurationPrompt(user models.User, currentWeightInKg float32, currentBodyFatPercentage float32, goalWeightInKg float32, goalBodyFatPercentage float32) string {
 	bodyFatString := ""
-	if currentBodyFatPercentage != "" {
-		bodyFatString = fmt.Sprintf("with approx %s%% body fat, ", currentBodyFatPercentage)
+	if currentBodyFatPercentage != 0 {
+		bodyFatString = fmt.Sprintf("with approx %.1f%% body fat, ", currentBodyFatPercentage)
 	}
 
-	return fmt.Sprintf("I am %s kg %s, %s year old %s, and %.1f cm in height."+
-		" My goal is fat loss, with target weight as %s kg and %s%% body fat."+
+	return fmt.Sprintf("I am %.1f kg %s, %s year old %s, and %.1f cm in height."+
+		" My goal is to get to target weight as %.1f kg and %.1f%% body fat."+
 		" I want 3 pace options to get to my target namely slow paced, medium paced and fast paced."+
 		" For each option I want also want to know duration in weeks to achieve the target, weekly weight change i.e. loss or gain in kg.",
 		currentWeightInKg, bodyFatString, user.Age, user.Sex, user.HeightInCm, goalWeightInKg, goalBodyFatPercentage)
 }
 
-func GetTdeePrompt(currentWeightInKg string, currentBodyFatPercentage string, goalWeightInKg string, goalBodyFatPercentage string, user models.User) string {
+func GetTdeePrompt(user models.User, currentWeightInKg float32, currentBodyFatPercentage float32, goalWeightInKg float32, goalBodyFatPercentage float32, goalType string) string {
 	bodyFatString := ""
-	if currentBodyFatPercentage != "" {
-		bodyFatString = fmt.Sprintf("with approx %s%% body fat, ", currentBodyFatPercentage)
+	if currentBodyFatPercentage != 0 {
+		bodyFatString = fmt.Sprintf("with approx %.1f%% body fat, ", currentBodyFatPercentage)
 	}
 
-	return fmt.Sprintf("I am %s kg %s, %s year old %s, and %.1f cm in height."+
-		" My goal is fat loss, with target weight as %s kg and %s%% body fat."+
+	return fmt.Sprintf("I am %.1f kg %s, %s year old %s, and %.1f cm in height."+
+		" My goal is %s, with target weight as %.1f kg and %.1f%% body fat."+
 		" I want to know my maintenance calories and tdee. bmr should be average of Mifflin-St Jeor and Harris-Benedict. "+
 		" Description should include job, lifestyle and exercise.",
-		currentWeightInKg, bodyFatString, user.Age, user.Sex, user.HeightInCm, goalWeightInKg, goalBodyFatPercentage)
+		currentWeightInKg, bodyFatString, user.Age, user.Sex, user.HeightInCm, goalType, goalWeightInKg, goalBodyFatPercentage)
 }
 
-func GetDailyMacroPrompt(currentWeightInKg string, currentBodyFatPercentage string, goalWeightInKg string, goalBodyFatPercentage string, user models.User) string {
+func GetDailyMacroPrompt(user models.User, currentWeightInKg float32, currentBodyFatPercentage float32,
+	goalWeightInKg float32, goalBodyFatPercentage float32, goalType string,
+	currentBmr int32, currentTdee int32, weightChange float32) string {
 	bodyFatString := ""
-	if currentBodyFatPercentage != "" {
-		bodyFatString = fmt.Sprintf("with approx %s%% body fat, ", currentBodyFatPercentage)
+	if currentBodyFatPercentage != 0 {
+		bodyFatString = fmt.Sprintf("with approx %.1f%% body fat, ", currentBodyFatPercentage)
 	}
 
-	return fmt.Sprintf("I am %s kg %s, %s year old %s, and %.1f cm in height."+
-		" My goal is fat loss, with target weight as %s kg and %s%% body fat."+
-		" I want to know my maintenance calories and tdee. bmr should be average of Mifflin-St Jeor and Harris-Benedict. "+
-		" Description should include job, lifestyle and exercise.",
-		currentWeightInKg, bodyFatString, user.Age, user.Sex, user.HeightInCm, goalWeightInKg, goalBodyFatPercentage)
+	return fmt.Sprintf("I am %.1f kg %s, %s year old %s, and %.1f cm in height."+
+		" My goal is %s, with target weight as %.1f kg and %.1f%% body fat."+
+		" With my Current bmr of %d calories and tdee of %d calories, I want to know my daily calorie intake to achieve a weight change of %.2f kg per week. "+
+		" Make sure to include daily calories and macros in response.",
+		currentWeightInKg, bodyFatString, user.Age, user.Sex, user.HeightInCm, goalType, goalWeightInKg, goalBodyFatPercentage, currentBmr, currentTdee, weightChange)
 }
 
 func GetSingleMealPrompt(user models.User,
 	currentWeightInKg string, currentBodyFatPercentage string,
 	goalWeightInKg string, goalBodyFatPercentage string,
-	maxCalories int32, maxFat int32, maxCarb int32, maxProtein int32) string {
+	maxCalories int32, maxFat int32, maxCarb int32,
+	maxProtein int32, goalType string) string {
 	bodyFatString := ""
 	if currentBodyFatPercentage != "" {
 		bodyFatString = fmt.Sprintf("with approx %s%% body fat, ", currentBodyFatPercentage)
 	}
 
 	return fmt.Sprintf("I am %s kg %s, %s year old %s, and %.1f cm in height."+
-		" My goal is fat loss, with target weight as %s kg and %s%% body fat."+
+		" My goal is %s, with target weight as %s kg and %s%% body fat."+
 		" For the next week I will be on a %d calorie per day diet with %d grams protein %d grams fat and %d grams carbs."+
 		" I am from %s and prefer %s diet."+
 		" Suggest a meal plan for a single day including time frames for each meal."+
 		" Make sure to include calories and macros."+
 		" Make sure the ingredients are generic and not specific to a brand or country, also make sure to include raw ingredients rather than processed or store bought finished products."+
 		" for eg. ingredient should not include 'chicken tikka masala' instead break it down into raw ingredients and include in recipe steps.",
-		currentWeightInKg, bodyFatString, user.Age, user.Sex, user.HeightInCm, goalWeightInKg, goalBodyFatPercentage, maxCalories, maxProtein, maxFat, maxCarb, user.Country, strings.Join(user.DietPreferences, ", "))
+		currentWeightInKg, bodyFatString, user.Age, user.Sex, user.HeightInCm, goalType, goalWeightInKg, goalBodyFatPercentage, maxCalories, maxProtein, maxFat, maxCarb, user.Country, strings.Join(user.DietPreferences, ", "))
 }

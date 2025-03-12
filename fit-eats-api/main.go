@@ -13,6 +13,26 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+/*
+Controller: Receives HTTP requests, validates input, calls the service layer to perform actions, and returns HTTP responses. It's the entry point for the API.
+Service: Contains the business logic of the application.
+Repository: Deals directly with data persistence (e.g., MongoDB). It abstracts away the database implementation details.
+
+Data Flow:
+
++----------+     +-----------+     +----------+     +------------+
+| HTTP     | --> | Controller| --> | Service  | --> | Repository | --> MongoDB
+| Request  |     |           |     |          |     |            |
++----------+     +-----------+     +----------+     +------------+
+                                                      ^
+                                                      |
++----------+     +-----------+     +----------+     +------------+
+| HTTP     | <-- | Controller| <-- | Service  | <-- | Repository | <-- MongoDB
+| Response |     |           |     |          |     |            |
++----------+     +-----------+     +----------+     +------------+
+
+*/
+
 func main() {
 	// Load configuration
 	cfg := config.GetConfig()
@@ -30,7 +50,7 @@ func main() {
 	// Initialize repositories, services, and controllers
 	userGoalRepo := repositories.NewUserGoalRepository(db)
 	userGoalService := services.NewUserGoalService(userGoalRepo)
-	userGoalController := controllers.NewUserGoalController(userGoalService)
+	userGoalController := controllers.NewUserGoalController(userGoalService, userService)
 
 	// Set up Gin router
 	router := gin.Default()
