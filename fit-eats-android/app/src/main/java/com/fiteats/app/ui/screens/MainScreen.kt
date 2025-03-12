@@ -55,7 +55,7 @@ fun MainScreen(mainNavController: NavController) {
             composable(BottomNavItem.Goals.route) {
                 MyGoalsScreen(
                     onAddWeeklyGoal = { mainNavController.navigate(route = Screens.AddWeeklyGoalScreen.route) },
-                    onAddOverallGoal = { mainNavController.navigate(route = Screens.AddOverallGoalScreen.route) }
+                    onAddMainGoal = { mainNavController.navigate(route = Screens.AddMainGoalScreen.route) }
                 )
             }
             composable(BottomNavItem.Profile.route) {

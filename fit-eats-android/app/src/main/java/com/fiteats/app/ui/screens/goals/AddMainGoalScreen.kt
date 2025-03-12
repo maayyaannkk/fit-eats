@@ -1,4 +1,4 @@
-package com.fiteats.app.ui.screens
+package com.fiteats.app.ui.screens.goals
 
 import android.app.DatePickerDialog
 import android.widget.Toast
@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -30,30 +29,32 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.fiteats.app.models.UserGoalModel
+import com.fiteats.app.models.GoalType
+import com.fiteats.app.models.MainGoalModel
+import com.fiteats.app.ui.viewModel.UserGoalViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
-//TODO remove this
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddGoalScreen(navController: NavController) {
+fun AddMainGoalScreen(navController: NavController) {
+    val viewModel: UserGoalViewModel = viewModel()
+
     val context = LocalContext.current
-    val goalDuration = remember { mutableStateOf("") }
-    val currentWeight = remember { mutableStateOf("") }
-    val currentFatPercentage = remember { mutableStateOf("") }
-    val dailyMaintenanceCalories = remember { mutableStateOf("") }
-    val targetDailyCalories = remember { mutableStateOf("") }
-    val targetProtein = remember { mutableStateOf("") }
-    val targetCarbs = remember { mutableStateOf("") }
-    val targetFats = remember { mutableStateOf("") }
-    val workoutRoutine = remember { mutableStateOf("") }
+
+    val startWeight = remember { mutableStateOf("") }
+    val startFatPercentage = remember { mutableStateOf("") }
+    val targetWeight = remember { mutableStateOf("") }
+    val targetFatPercentage = remember { mutableStateOf("") }
 
     val startDate = remember { mutableStateOf("") }
     val endDate = remember { mutableStateOf("") }
+
+    val goalType = remember { mutableStateOf(GoalType.FAT_LOSS) }
 
     val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
@@ -98,23 +99,34 @@ fun AddGoalScreen(navController: NavController) {
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
-                value = goalDuration.value,
-                onValueChange = { goalDuration.value = it },
-                label = { Text("Goal Duration (weeks)") })
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = currentWeight.value,
-                onValueChange = { currentWeight.value = it },
-                label = { Text("Current Weight (kg)") },
+                value = startWeight.value,
+                onValueChange = { startWeight.value = it },
+                label = { Text("Start Weight (kg)") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
-                value = currentFatPercentage.value,
-                onValueChange = { currentFatPercentage.value = it },
-                label = { Text("Current Fat %") },
+                value = startFatPercentage.value,
+                onValueChange = { startFatPercentage.value = it },
+                label = { Text("Start Fat %") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            )
+
+            OutlinedTextField(
+                modifier = Modifier.fillMaxWidth(),
+                value = targetWeight.value,
+                onValueChange = { targetWeight.value = it },
+                label = { Text("Target Weight (kg)") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            )
+            OutlinedTextField(
+                modifier = Modifier.fillMaxWidth(),
+                value = targetFatPercentage.value,
+                onValueChange = { targetFatPercentage.value = it },
+                label = { Text("Target Fat %") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
 
@@ -142,74 +154,23 @@ fun AddGoalScreen(navController: NavController) {
                     }
                 })
 
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = dailyMaintenanceCalories.value,
-                onValueChange = { dailyMaintenanceCalories.value = it },
-                label = { Text("Daily Maintenance Calories") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-            )
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = targetDailyCalories.value,
-                onValueChange = { targetDailyCalories.value = it },
-                label = { Text("Target Daily Calories") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-            )
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = targetProtein.value,
-                onValueChange = { targetProtein.value = it },
-                label = { Text("Protein (g)") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-            )
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = targetCarbs.value,
-                onValueChange = { targetCarbs.value = it },
-                label = { Text("Carbs (g)") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-            )
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = targetFats.value,
-                onValueChange = { targetFats.value = it },
-                label = { Text("Fats (g)") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-            )
-            OutlinedTextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(150.dp),
-                maxLines = 5,
-                value = workoutRoutine.value,
-                onValueChange = { workoutRoutine.value = it },
-                label = { Text("Workout Routine") }
-            )
-
             Button(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
                     try {
-                        val goal = UserGoalModel(
-                            goalDuration = goalDuration.value,
-                            currentWeightInKg = currentWeight.value.toDoubleOrNull(),
-                            currentFatPercentage = currentFatPercentage.value.toDoubleOrNull(),
+                        val goal = MainGoalModel(
+                            startWeightInKg = startWeight.value.toDoubleOrNull(),
+                            startFatPercentage = startFatPercentage.value.toDoubleOrNull(),
+                            targetWeightInKg = targetWeight.value.toDoubleOrNull(),
+                            targetFatPercentage = targetFatPercentage.value.toDoubleOrNull(),
                             goalStartDate = dateFormatter.parse(startDate.value),
                             goalEndDate = dateFormatter.parse(endDate.value),
-                            dailyMaintenanceCalories = dailyMaintenanceCalories.value.toDoubleOrNull(),
-                            targetDailyCalories = targetDailyCalories.value.toDoubleOrNull(),
-                            targetDailyMacrosProtein = targetProtein.value.toDoubleOrNull(),
-                            targetDailyMacrosCarbs = targetCarbs.value.toDoubleOrNull(),
-                            targetDailyMacrosFats = targetFats.value.toDoubleOrNull(),
-                            workoutRoutine = workoutRoutine.value
+                            goalType = goalType.value
                         )
 
-                        if (goal.currentWeightInKg == null || goal.currentFatPercentage == null ||
-                            goal.goalStartDate == null || goal.goalEndDate == null ||
-                            goal.dailyMaintenanceCalories == null || goal.targetDailyCalories == null ||
-                            goal.targetDailyMacrosProtein == null || goal.targetDailyMacrosCarbs == null ||
-                            goal.targetDailyMacrosFats == null || workoutRoutine.value.isBlank()
+                        if (goal.startWeightInKg == null || goal.startFatPercentage == null ||
+                            goal.targetWeightInKg == null || goal.targetFatPercentage == null ||
+                            goal.goalStartDate == null || goal.goalEndDate == null
                         ) {
                             Toast.makeText(
                                 context,
@@ -217,7 +178,7 @@ fun AddGoalScreen(navController: NavController) {
                                 Toast.LENGTH_LONG
                             ).show()
                         } else {
-                            navController.popBackStack()
+                            //navController.popBackStack()
                         }
                     } catch (e: Exception) {
                         Toast.makeText(context, "Invalid data format", Toast.LENGTH_LONG).show()
@@ -231,6 +192,6 @@ fun AddGoalScreen(navController: NavController) {
 
 @Preview
 @Composable
-fun AddGoalScreenPreview() {
-    AddGoalScreen(rememberNavController())
+fun AddMainGoalScreenPreview() {
+    AddMainGoalScreen(rememberNavController())
 }

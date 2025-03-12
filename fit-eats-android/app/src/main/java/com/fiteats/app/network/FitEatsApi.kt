@@ -1,6 +1,6 @@
 package com.fiteats.app.network
 
-import com.fiteats.app.models.UserGoalModel
+import com.fiteats.app.models.MainGoalModel
 import com.fiteats.app.models.UserModel
 import com.google.gson.JsonObject
 import retrofit2.Response
@@ -49,13 +49,37 @@ interface FitEatsApi {
     //endregion
 
     //region goals
-    @POST("goals")
-    suspend fun registerGoal(@Body goalModel: UserGoalModel): Response<JsonObject>
+    @POST("registerMainGoal")
+    suspend fun registerMainGoal(@Body goalModel: MainGoalModel): Response<JsonObject>
+
+    @POST("registerWeeklyGoal")
+    suspend fun registerWeeklyGoal(
+        @Body goalModel: MainGoalModel,
+        @Query("mainGoalId") mainGoalId: String
+    ): Response<JsonObject>
 
     @GET("goals")
     suspend fun getGoals(@Query("userId") userId: String): Response<JsonObject>
 
     @DELETE("goals")
     suspend fun deleteGoal(@Query("goalId") goalId: String): Response<JsonObject>
+    //endregion
+
+    //region AI routes
+    @GET("getIdealWeight")
+    suspend fun getIdealWeight(
+        @Query("userId") userId: String,
+        @Query("currentWeightInKg") currentWeightInKg: Double,
+        @Query("currentBodyFatPercentage") currentBodyFatPercentage: Double
+    ): Response<JsonObject>
+
+    @GET("getGoalDuration")
+    suspend fun getGoalDuration(
+        @Query("userId") userId: String,
+        @Query("currentWeightInKg") currentWeightInKg: Double,
+        @Query("currentBodyFatPercentage") currentBodyFatPercentage: Double,
+        @Query("goalWeightInKg") goalWeightInKg: Double,
+        @Query("goalBodyFatPercentage") goalBodyFatPercentage: Double
+    ): Response<JsonObject>
     //endregion
 }

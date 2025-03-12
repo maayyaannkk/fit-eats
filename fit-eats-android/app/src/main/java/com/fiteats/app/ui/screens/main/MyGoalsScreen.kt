@@ -16,12 +16,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun MyGoalsScreen(onAddWeeklyGoal: () -> Unit, onAddOverallGoal: () -> Unit) {
+fun MyGoalsScreen(onAddWeeklyGoal: () -> Unit, onAddMainGoal: () -> Unit) {
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(onClick = {
-                //if no overall goal is set?
-                onAddOverallGoal()
+                //if no main goal is set?
+                onAddMainGoal()
                 //else start weekly
             }) {
                 Icon(Icons.Filled.Add, "Add")
