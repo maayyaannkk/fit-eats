@@ -17,5 +17,5 @@ type User struct {
 
 // IsProfileComplete checks if the user profile is complete based on certain fields.
 func (user *User) IsProfileComplete() bool {
-	return len(user.DietPreferences) > 0 && user.HeightInCm != 0 && user.Age != "" && user.Sex != "" && user.Country != ""
+	return user.HeightInCm != 0 && user.Age != "" && user.Sex != "" && user.Country != ""
 }

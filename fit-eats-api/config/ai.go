@@ -2,6 +2,7 @@ package config
 
 import (
 	"fit-eats-api/models"
+	"sync"
 
 	"fmt"
 	"log"
@@ -16,6 +17,12 @@ var goalDurationModel *genai.GenerativeModel
 var tdeeModel *genai.GenerativeModel
 var macroModel *genai.GenerativeModel
 var mealModel *genai.GenerativeModel
+
+var loadOnceWeightRange sync.Once
+var loadOnceGoalDuration sync.Once
+var loadOnceTdee sync.Once
+var loadOnceMacro sync.Once
+var loadOnceMeal sync.Once
 
 func getBaseModel() genai.GenerativeModel {
 	ctx, cancel := GetTimedContext()
@@ -45,7 +52,7 @@ func getBaseModel() genai.GenerativeModel {
 
 func GetWeightRangeModel() *genai.GenerativeModel {
 	if weightRangeModel == nil {
-		loadOnce.Do(func() {
+		loadOnceWeightRange.Do(func() {
 			temp := getBaseModel()
 			temp.ResponseSchema = &genai.Schema{
 				Type:     genai.TypeObject,
@@ -101,7 +108,7 @@ func GetWeightRangeModel() *genai.GenerativeModel {
 
 func GetGoalDurationModel() *genai.GenerativeModel {
 	if goalDurationModel == nil {
-		loadOnce.Do(func() {
+		loadOnceGoalDuration.Do(func() {
 			temp := getBaseModel()
 			temp.ResponseSchema = &genai.Schema{
 				Type: genai.TypeObject,
@@ -194,7 +201,7 @@ func GetGoalDurationModel() *genai.GenerativeModel {
 
 func GetTdeeModel() *genai.GenerativeModel {
 	if tdeeModel == nil {
-		loadOnce.Do(func() {
+		loadOnceTdee.Do(func() {
 			temp := getBaseModel()
 			temp.ResponseSchema = &genai.Schema{
 				Type: genai.TypeObject,
@@ -303,7 +310,7 @@ func GetTdeeModel() *genai.GenerativeModel {
 
 func GetMacroModel() *genai.GenerativeModel {
 	if macroModel == nil {
-		loadOnce.Do(func() {
+		loadOnceMacro.Do(func() {
 			temp := getBaseModel()
 			temp.ResponseSchema = &genai.Schema{
 				Type: genai.TypeObject,
@@ -388,7 +395,7 @@ func GetMacroModel() *genai.GenerativeModel {
 
 func GetMealModel() *genai.GenerativeModel {
 	if mealModel == nil {
-		loadOnce.Do(func() {
+		loadOnceMeal.Do(func() {
 			temp := getBaseModel()
 			temp.ResponseSchema = &genai.Schema{
 				Type: genai.TypeObject,
@@ -471,7 +478,7 @@ func GetMealModel() *genai.GenerativeModel {
 func GetWeightRangePrompt(user models.User, currentWeightInKg float32, currentBodyFatPercentage float32) string {
 	bodyFatString := ""
 	if currentBodyFatPercentage != 0 {
-		bodyFatString = fmt.Sprintf("with approx %.1f%% body fat, ", currentBodyFatPercentage)
+		bodyFatString = fmt.Sprintf("with approx %.1f%% body fat", currentBodyFatPercentage)
 	}
 
 	return fmt.Sprintf("I am %.1f kg %s, %s year old %s, and %.1f cm in height."+
@@ -483,7 +490,7 @@ func GetWeightRangePrompt(user models.User, currentWeightInKg float32, currentBo
 func GetGoalDurationPrompt(user models.User, currentWeightInKg float32, currentBodyFatPercentage float32, goalWeightInKg float32, goalBodyFatPercentage float32) string {
 	bodyFatString := ""
 	if currentBodyFatPercentage != 0 {
-		bodyFatString = fmt.Sprintf("with approx %.1f%% body fat, ", currentBodyFatPercentage)
+		bodyFatString = fmt.Sprintf("with approx %.1f%% body fat", currentBodyFatPercentage)
 	}
 
 	return fmt.Sprintf("I am %.1f kg %s, %s year old %s, and %.1f cm in height."+
@@ -496,7 +503,7 @@ func GetGoalDurationPrompt(user models.User, currentWeightInKg float32, currentB
 func GetTdeePrompt(user models.User, currentWeightInKg float32, currentBodyFatPercentage float32, goalWeightInKg float32, goalBodyFatPercentage float32, goalType string) string {
 	bodyFatString := ""
 	if currentBodyFatPercentage != 0 {
-		bodyFatString = fmt.Sprintf("with approx %.1f%% body fat, ", currentBodyFatPercentage)
+		bodyFatString = fmt.Sprintf("with approx %.1f%% body fat", currentBodyFatPercentage)
 	}
 
 	return fmt.Sprintf("I am %.1f kg %s, %s year old %s, and %.1f cm in height."+
@@ -511,7 +518,7 @@ func GetDailyMacroPrompt(user models.User, currentWeightInKg float32, currentBod
 	currentBmr int32, currentTdee int32, weightChange float32) string {
 	bodyFatString := ""
 	if currentBodyFatPercentage != 0 {
-		bodyFatString = fmt.Sprintf("with approx %.1f%% body fat, ", currentBodyFatPercentage)
+		bodyFatString = fmt.Sprintf("with approx %.1f%% body fat", currentBodyFatPercentage)
 	}
 
 	return fmt.Sprintf("I am %.1f kg %s, %s year old %s, and %.1f cm in height."+
@@ -528,7 +535,7 @@ func GetSingleMealPrompt(user models.User,
 	maxProtein int32, goalType string) string {
 	bodyFatString := ""
 	if currentBodyFatPercentage != "" {
-		bodyFatString = fmt.Sprintf("with approx %s%% body fat, ", currentBodyFatPercentage)
+		bodyFatString = fmt.Sprintf("with approx %s%% body fat", currentBodyFatPercentage)
 	}
 
 	return fmt.Sprintf("I am %s kg %s, %s year old %s, and %.1f cm in height."+

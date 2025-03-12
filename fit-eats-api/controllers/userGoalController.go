@@ -6,6 +6,7 @@ import (
 	"fit-eats-api/models"
 	"fit-eats-api/services"
 	"fit-eats-api/utils"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -170,20 +171,27 @@ func (c *UserGoalController) DeleteUserWeeklyGoal(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusMovedPermanently, gin.H{"success": true})
 }
+
 func (c *UserGoalController) GetIdealWeightRange(ctx *gin.Context) {
-	mongoUserIdStr, ok := ctx.GetQuery("userId")
-	if !ok {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format: missing userId"})
-		return
+	requiredFields := []string{"userId", "currentWeightInKg", "goalWeightInKg", "currentBodyFatPercentage", "goalBodyFatPercentage"}
+	values := make(map[string]string)
+
+	for _, field := range requiredFields {
+		value, ok := ctx.GetQuery(field)
+		if !ok {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid request format: missing %s", field)})
+			return
+		}
+		values[field] = value
 	}
+
+	mongoUserIdStr := values["userId"]
+	currentWeightInKgStr := values["currentWeightInKg"]
+	currentBodyFatPercentageStr := values["currentBodyFatPercentage"]
+
 	mongoUserId, err := primitive.ObjectIDFromHex(mongoUserIdStr)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid userId format: must be a valid ObjectId"})
-		return
-	}
-	currentWeightInKgStr, ok := ctx.GetQuery("currentWeightInKg")
-	if !ok {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format: missing currentWeightInKg"})
 		return
 	}
 
@@ -195,12 +203,6 @@ func (c *UserGoalController) GetIdealWeightRange(ctx *gin.Context) {
 
 	if currentWeightInKg < 30 || currentWeightInKg > 250 {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "currentWeightInKg must be between 30 and 250"})
-		return
-	}
-
-	currentBodyFatPercentageStr, ok := ctx.GetQuery("currentBodyFatPercentage")
-	if !ok {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format: missing currentBodyFatPercentage"})
 		return
 	}
 
@@ -247,34 +249,37 @@ func (c *UserGoalController) GetIdealWeightRange(ctx *gin.Context) {
 		return
 	}
 
-	jsonData, err := json.Marshal(content)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to marshal response to JSON: " + err.Error()})
+	var result map[string]any
+	if err := json.Unmarshal([]byte(content), &result); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to unmarshal response to JSON: " + err.Error()})
 		return
 	}
 
-	ctx.Data(http.StatusOK, "application/json", jsonData)
+	ctx.JSON(http.StatusOK, result)
 }
 
 func (c *UserGoalController) GetGoalDuration(ctx *gin.Context) {
-	mongoUserIdStr, ok := ctx.GetQuery("userId")
-	if !ok {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format: missing userId"})
-		return
+	requiredFields := []string{"userId", "currentWeightInKg", "goalWeightInKg", "currentBodyFatPercentage", "goalBodyFatPercentage"}
+	values := make(map[string]string)
+
+	for _, field := range requiredFields {
+		value, ok := ctx.GetQuery(field)
+		if !ok {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid request format: missing %s", field)})
+			return
+		}
+		values[field] = value
 	}
+
+	mongoUserIdStr := values["userId"]
+	currentWeightInKgStr := values["currentWeightInKg"]
+	goalWeightInKgStr := values["goalWeightInKg"]
+	currentBodyFatPercentageStr := values["currentBodyFatPercentage"]
+	goalBodyFatPercentageStr := values["goalBodyFatPercentage"]
+
 	mongoUserId, err := primitive.ObjectIDFromHex(mongoUserIdStr)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid userId format: must be a valid ObjectId"})
-		return
-	}
-	currentWeightInKgStr, ok := ctx.GetQuery("currentWeightInKg")
-	if !ok {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format: missing currentWeightInKg"})
-		return
-	}
-	goalWeightInKgStr, ok := ctx.GetQuery("goalWeightInKgStr")
-	if !ok {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format: missing goalWeightInKgStr"})
 		return
 	}
 
@@ -300,21 +305,9 @@ func (c *UserGoalController) GetGoalDuration(ctx *gin.Context) {
 		return
 	}
 
-	currentBodyFatPercentageStr, ok := ctx.GetQuery("currentBodyFatPercentage")
-	if !ok {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format: missing currentBodyFatPercentage"})
-		return
-	}
-
 	currentBodyFatPercentage, err := strconv.ParseFloat(currentBodyFatPercentageStr, 32)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid currentBodyFatPercentage format: must be a number"})
-		return
-	}
-
-	goalBodyFatPercentageStr, ok := ctx.GetQuery("goalBodyFatPercentage")
-	if !ok {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format: missing currentBodyFatPercentage"})
 		return
 	}
 
@@ -361,39 +354,38 @@ func (c *UserGoalController) GetGoalDuration(ctx *gin.Context) {
 		return
 	}
 
-	jsonData, err := json.Marshal(content)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to marshal response to JSON: " + err.Error()})
+	var result map[string]any
+	if err := json.Unmarshal([]byte(content), &result); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to unmarshal response to JSON: " + err.Error()})
 		return
 	}
 
-	ctx.Data(http.StatusOK, "application/json", jsonData)
+	ctx.JSON(http.StatusOK, result)
 }
 
 func (c *UserGoalController) GetTdee(ctx *gin.Context) {
-	mongoUserIdStr, ok := ctx.GetQuery("userId")
-	if !ok {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format: missing userId"})
-		return
+	requiredFields := []string{"userId", "currentWeightInKg", "goalWeightInKg", "currentBodyFatPercentage", "goalBodyFatPercentage", "goalType"}
+	values := make(map[string]string)
+
+	for _, field := range requiredFields {
+		value, ok := ctx.GetQuery(field)
+		if !ok {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid request format: missing %s", field)})
+			return
+		}
+		values[field] = value
 	}
+
+	mongoUserIdStr := values["userId"]
+	currentWeightInKgStr := values["currentWeightInKg"]
+	goalWeightInKgStr := values["goalWeightInKg"]
+	currentBodyFatPercentageStr := values["currentBodyFatPercentage"]
+	goalBodyFatPercentageStr := values["goalBodyFatPercentage"]
+	goalType := values["goalType"]
+
 	mongoUserId, err := primitive.ObjectIDFromHex(mongoUserIdStr)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid userId format: must be a valid ObjectId"})
-		return
-	}
-	currentWeightInKgStr, ok := ctx.GetQuery("currentWeightInKg")
-	if !ok {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format: missing currentWeightInKg"})
-		return
-	}
-	goalWeightInKgStr, ok := ctx.GetQuery("goalWeightInKgStr")
-	if !ok {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format: missing goalWeightInKgStr"})
-		return
-	}
-	goalType, ok := ctx.GetQuery("goalType")
-	if !ok {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format: missing goalType"})
 		return
 	}
 
@@ -419,21 +411,9 @@ func (c *UserGoalController) GetTdee(ctx *gin.Context) {
 		return
 	}
 
-	currentBodyFatPercentageStr, ok := ctx.GetQuery("currentBodyFatPercentage")
-	if !ok {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format: missing currentBodyFatPercentage"})
-		return
-	}
-
 	currentBodyFatPercentage, err := strconv.ParseFloat(currentBodyFatPercentageStr, 32)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid currentBodyFatPercentage format: must be a number"})
-		return
-	}
-
-	goalBodyFatPercentageStr, ok := ctx.GetQuery("goalBodyFatPercentage")
-	if !ok {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format: missing currentBodyFatPercentage"})
 		return
 	}
 
@@ -480,39 +460,42 @@ func (c *UserGoalController) GetTdee(ctx *gin.Context) {
 		return
 	}
 
-	jsonData, err := json.Marshal(content)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to marshal response to JSON: " + err.Error()})
+	var result map[string]any
+	if err := json.Unmarshal([]byte(content), &result); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to unmarshal response to JSON: " + err.Error()})
 		return
 	}
 
-	ctx.Data(http.StatusOK, "application/json", jsonData)
+	ctx.JSON(http.StatusOK, result)
 }
 
 func (c *UserGoalController) GetMacros(ctx *gin.Context) {
-	mongoUserIdStr, ok := ctx.GetQuery("userId")
-	if !ok {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format: missing userId"})
-		return
+	requiredFields := []string{"userId", "currentWeightInKg", "goalWeightInKg", "currentBodyFatPercentage", "goalBodyFatPercentage",
+		"goalType", "currentBmr", "currentTdee", "weightChange"}
+	values := make(map[string]string)
+
+	for _, field := range requiredFields {
+		value, ok := ctx.GetQuery(field)
+		if !ok {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid request format: missing %s", field)})
+			return
+		}
+		values[field] = value
 	}
+
+	mongoUserIdStr := values["userId"]
+	currentWeightInKgStr := values["currentWeightInKg"]
+	goalWeightInKgStr := values["goalWeightInKg"]
+	currentBodyFatPercentageStr := values["currentBodyFatPercentage"]
+	goalBodyFatPercentageStr := values["goalBodyFatPercentage"]
+	goalType := values["goalType"]
+	currentBmrStr := values["currentBmr"]
+	currentTdeeStr := values["currentTdee"]
+	weightChangeStr := values["weightChange"]
+
 	mongoUserId, err := primitive.ObjectIDFromHex(mongoUserIdStr)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid userId format: must be a valid ObjectId"})
-		return
-	}
-	currentWeightInKgStr, ok := ctx.GetQuery("currentWeightInKg")
-	if !ok {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format: missing currentWeightInKg"})
-		return
-	}
-	goalWeightInKgStr, ok := ctx.GetQuery("goalWeightInKgStr")
-	if !ok {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format: missing goalWeightInKgStr"})
-		return
-	}
-	goalType, ok := ctx.GetQuery("goalType")
-	if !ok {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format: missing goalType"})
 		return
 	}
 
@@ -538,21 +521,9 @@ func (c *UserGoalController) GetMacros(ctx *gin.Context) {
 		return
 	}
 
-	currentBodyFatPercentageStr, ok := ctx.GetQuery("currentBodyFatPercentage")
-	if !ok {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format: missing currentBodyFatPercentage"})
-		return
-	}
-
 	currentBodyFatPercentage, err := strconv.ParseFloat(currentBodyFatPercentageStr, 32)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid currentBodyFatPercentage format: must be a number"})
-		return
-	}
-
-	goalBodyFatPercentageStr, ok := ctx.GetQuery("goalBodyFatPercentage")
-	if !ok {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format: missing currentBodyFatPercentage"})
 		return
 	}
 
@@ -567,33 +538,15 @@ func (c *UserGoalController) GetMacros(ctx *gin.Context) {
 		return
 	}
 
-	currentBmrStr, ok := ctx.GetQuery("currentBmr")
-	if !ok {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format: missing currentBmr"})
-		return
-	}
-
 	currentBmr, err := strconv.ParseInt(currentBmrStr, 10, 32)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid currentBmr format: must be an integer"})
 		return
 	}
 
-	currentTdeeStr, ok := ctx.GetQuery("currentTdee")
-	if !ok {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format: missing currentTdee"})
-		return
-	}
-
 	currentTdee, err := strconv.ParseInt(currentTdeeStr, 10, 32)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid currentTdee format: must be an integer"})
-		return
-	}
-
-	weightChangeStr, ok := ctx.GetQuery("weightChange")
-	if !ok {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format: missing weightChange"})
 		return
 	}
 
@@ -637,11 +590,11 @@ func (c *UserGoalController) GetMacros(ctx *gin.Context) {
 		return
 	}
 
-	jsonData, err := json.Marshal(content)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to marshal response to JSON: " + err.Error()})
+	var result map[string]any
+	if err := json.Unmarshal([]byte(content), &result); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to unmarshal response to JSON: " + err.Error()})
 		return
 	}
 
-	ctx.Data(http.StatusOK, "application/json", jsonData)
+	ctx.JSON(http.StatusOK, result)
 }
