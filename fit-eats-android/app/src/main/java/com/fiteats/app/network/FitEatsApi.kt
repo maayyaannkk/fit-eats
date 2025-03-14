@@ -1,5 +1,7 @@
 package com.fiteats.app.network
 
+import com.fiteats.app.models.GoalDuration
+import com.fiteats.app.models.IdealWeight
 import com.fiteats.app.models.MainGoalModel
 import com.fiteats.app.models.UserModel
 import com.google.gson.JsonObject
@@ -71,7 +73,7 @@ interface FitEatsApi {
         @Query("userId") userId: String,
         @Query("currentWeightInKg") currentWeightInKg: Double,
         @Query("currentBodyFatPercentage") currentBodyFatPercentage: Double
-    ): Response<JsonObject>
+    ): Response<IdealWeight>
 
     @GET("getGoalDuration")
     suspend fun getGoalDuration(
@@ -80,6 +82,6 @@ interface FitEatsApi {
         @Query("currentBodyFatPercentage") currentBodyFatPercentage: Double,
         @Query("goalWeightInKg") goalWeightInKg: Double,
         @Query("goalBodyFatPercentage") goalBodyFatPercentage: Double
-    ): Response<JsonObject>
+    ): Response<GoalDuration>
     //endregion
 }

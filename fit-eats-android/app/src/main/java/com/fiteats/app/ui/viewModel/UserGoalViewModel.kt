@@ -18,6 +18,12 @@ class UserGoalViewModel(application: Application) : AndroidViewModel(application
     private val _userGoals = MutableLiveData<ArrayList<MainGoalModel>>()
     val userGoals: MutableLiveData<ArrayList<MainGoalModel>> get() = _userGoals
 
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: MutableLiveData<Boolean> get() = _isLoading
+
+    private val _apiError = MutableLiveData<String?>()
+    val apiError: MutableLiveData<String?> get() = _apiError
+
     fun getGoals() {
         viewModelScope.launch {
             try {
@@ -30,41 +36,21 @@ class UserGoalViewModel(application: Application) : AndroidViewModel(application
                             object : TypeToken<ArrayList<MainGoalModel>>() {}.type
                         )
                     goals?.let { _userGoals.value = it }
+                    _apiError.value = null // Clear any previous error
                 } else {
                     val errorJson = response.errorBody()?.string()
                     val errorMessage = try {
                         val jsonObject = JsonParser.parseString(errorJson).asJsonObject
-                        jsonObject.get("error")?.asString ?: "Update failed"
+                        jsonObject.get("error")?.asString ?: "Failed to get goals"
                     } catch (e: Exception) {
                         e.printStackTrace()
-                        "Update failed"
+                        "Failed to get goals"
                     }
+                    _apiError.value = errorMessage
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-            }
-        }
-    }
-
-    fun registerNewGoal(mainGoalModel: MainGoalModel) {
-        viewModelScope.launch {
-            try {
-                val response = api.registerMainGoal(mainGoalModel)
-                if (response.isSuccessful) {
-                    val responseString = response.body()!!
-
-                } else {
-                    val errorJson = response.errorBody()?.string()
-                    val errorMessage = try {
-                        val jsonObject = JsonParser.parseString(errorJson).asJsonObject
-                        jsonObject.get("error")?.asString ?: "Register failed"
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                        "Register failed"
-                    }
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
+                _apiError.value = "Failed to get goals: ${e.message}"
             }
         }
     }
@@ -75,6 +61,7 @@ class UserGoalViewModel(application: Application) : AndroidViewModel(application
                 val response = api.deleteGoal(goalId)
                 if (response.isSuccessful) {
                     val responseString = response.body()!!
+                    _apiError.value = null // Clear any previous error
 
                 } else {
                     val errorJson = response.errorBody()?.string()
@@ -85,75 +72,11 @@ class UserGoalViewModel(application: Application) : AndroidViewModel(application
                         e.printStackTrace()
                         "Delete failed"
                     }
+                    _apiError.value = errorMessage
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-            }
-        }
-    }
-
-    // AI API methods
-    fun getIdealWeight(currentWeightInKg: Double, currentBodyFatPercentage: Double) {
-        viewModelScope.launch {
-            try {
-                val userId = UserUtils.getUser(getApplication())!!.id!!
-                val response = api.getIdealWeight(userId, currentWeightInKg, currentBodyFatPercentage)
-                if (response.isSuccessful) {
-                    val responseString = response.body()!!
-                    //_idealWeight.value = responseString.get("idealWeight").asDouble
-                } else {
-                    val errorJson = response.errorBody()?.string()
-                    val errorMessage = try {
-                        val jsonObject = JsonParser.parseString(errorJson).asJsonObject
-                        jsonObject.get("error")?.asString ?: "Failed to get ideal weight"
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                        "Failed to get ideal weight"
-                    }
-                    // Handle error (e.g., show a Toast)
-                    //_idealWeight.value = null // Indicate failure
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                //_idealWeight.value = null // Indicate failure
-            }
-        }
-    }
-
-    fun getGoalDuration(
-        currentWeightInKg: Double,
-        currentBodyFatPercentage: Double,
-        goalWeightInKg: Double,
-        goalBodyFatPercentage: Double
-    ) {
-        viewModelScope.launch {
-            try {
-                val userId = UserUtils.getUser(getApplication())!!.id!!
-                val response = api.getGoalDuration(
-                    userId,
-                    currentWeightInKg,
-                    currentBodyFatPercentage,
-                    goalWeightInKg,
-                    goalBodyFatPercentage
-                )
-                if (response.isSuccessful) {
-                    val responseString = response.body()!!
-                    //_goalDuration.value = responseString.get("goalDuration").asInt // Assuming the API returns duration in days
-                } else {
-                    val errorJson = response.errorBody()?.string()
-                    val errorMessage = try {
-                        val jsonObject = JsonParser.parseString(errorJson).asJsonObject
-                        jsonObject.get("error")?.asString ?: "Failed to get goal duration"
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                        "Failed to get goal duration"
-                    }
-                    // Handle error (e.g., show a Toast)
-                    //_goalDuration.value = null // Indicate failure
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                //_goalDuration.value = null // Indicate failure
+                _apiError.value = "Delete failed: ${e.message}"
             }
         }
     }

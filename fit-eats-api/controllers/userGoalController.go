@@ -173,7 +173,7 @@ func (c *UserGoalController) DeleteUserWeeklyGoal(ctx *gin.Context) {
 }
 
 func (c *UserGoalController) GetIdealWeightRange(ctx *gin.Context) {
-	requiredFields := []string{"userId", "currentWeightInKg", "goalWeightInKg", "currentBodyFatPercentage", "goalBodyFatPercentage"}
+	requiredFields := []string{"userId", "currentWeightInKg", "currentBodyFatPercentage"}
 	values := make(map[string]string)
 
 	for _, field := range requiredFields {
