@@ -9,14 +9,13 @@ import com.fiteats.app.network.RetrofitClient
 import com.fiteats.app.utils.GsonUtil
 import com.fiteats.app.utils.UserUtils
 import com.google.gson.JsonParser
-import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.launch
 
 class UserGoalViewModel(application: Application) : AndroidViewModel(application = application) {
     private val api = RetrofitClient.createApi(context = application)
 
-    private val _userGoals = MutableLiveData<ArrayList<MainGoalModel>>()
-    val userGoals: MutableLiveData<ArrayList<MainGoalModel>> get() = _userGoals
+    private val _userGoals = MutableLiveData<MainGoalModel>()
+    val userGoals: MutableLiveData<MainGoalModel> get() = _userGoals
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: MutableLiveData<Boolean> get() = _isLoading
@@ -31,9 +30,9 @@ class UserGoalViewModel(application: Application) : AndroidViewModel(application
                 if (response.isSuccessful) {
                     val responseString = response.body()!!
                     val goals =
-                        GsonUtil.gson.fromJson<ArrayList<MainGoalModel>>(
+                        GsonUtil.gson.fromJson<MainGoalModel>(
                             responseString.get("userGoals"),
-                            object : TypeToken<ArrayList<MainGoalModel>>() {}.type
+                            MainGoalModel::class.java
                         )
                     goals?.let { _userGoals.value = it }
                     _apiError.value = null // Clear any previous error

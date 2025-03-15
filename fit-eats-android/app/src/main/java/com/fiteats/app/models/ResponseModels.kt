@@ -44,7 +44,9 @@ data class PaceOptions(
 data class Pace(
     @SerializedName("weekly_weight_change_kg") val weeklyWeightChangeKg: Double,
     @SerializedName("duration_weeks") val durationWeeks: Int,
-    @SerializedName("notes") val notes: String
+    @SerializedName("notes") val notes: String,
+    val type: String? = null,
+    val goalType: GoalType? = null
 )
 
 data class Tdee(

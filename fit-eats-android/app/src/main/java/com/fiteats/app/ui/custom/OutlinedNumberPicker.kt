@@ -24,7 +24,8 @@ fun OutlinedNumberPicker(
     minValue: Double,
     maxValue: Double,
     precision: Int = 2,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
 ) {
     var errorText by remember { mutableStateOf<String?>(null) }
 
@@ -33,6 +34,7 @@ fun OutlinedNumberPicker(
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         OutlinedTextField(
+            enabled = enabled,
             modifier = Modifier.fillMaxWidth(),
             value = numberState.value?.let {
                 //Format only if there are decimal places, otherwise remove trailing zeros

@@ -60,7 +60,7 @@ interface FitEatsApi {
         @Query("mainGoalId") mainGoalId: String
     ): Response<JsonObject>
 
-    @GET("goals")
+    @GET("getGoals")
     suspend fun getGoals(@Query("userId") userId: String): Response<JsonObject>
 
     @DELETE("goals")

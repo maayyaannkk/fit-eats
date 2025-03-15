@@ -26,8 +26,8 @@ func (s *UserGoalService) RegisterWeeklyGoal(ctx context.Context, mongoMainGoalI
 	return s.UserGoalRepo.CreateWeeklyUserGoal(ctx, mongoMainGoalId, userGoal)
 }
 
-func (s *UserGoalService) GetUserGoals(ctx context.Context, userId primitive.ObjectID) ([]models.Goal, error) {
-	user, err := s.UserGoalRepo.GetUserGoalsByUserId(ctx, userId)
+func (s *UserGoalService) GetUserMainGoal(ctx context.Context, userId primitive.ObjectID) (*models.Goal, error) {
+	user, err := s.UserGoalRepo.GetUserGoalByUserId(ctx, userId)
 	if err != nil {
 		return nil, errors.New("goals not found")
 	}

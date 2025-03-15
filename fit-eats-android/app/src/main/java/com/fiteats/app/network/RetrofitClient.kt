@@ -3,6 +3,7 @@ package com.fiteats.app.network
 
 import android.content.Context
 import com.fiteats.app.BuildConfig
+import com.fiteats.app.utils.GsonUtil
 import com.fiteats.app.utils.UserUtils
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -40,7 +41,7 @@ object RetrofitClient {
 
         api = Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(GsonUtil.gson))
             .client(client)
             .build()
             .create(FitEatsApi::class.java)

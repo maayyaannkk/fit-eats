@@ -39,14 +39,13 @@ func (c *UserGoalController) GetUserGoals(ctx *gin.Context) {
 	timedContext, cancel := config.GetTimedContext()
 	defer cancel()
 
-	// Register user
-	goals, err := c.UserGoalService.GetUserGoals(timedContext, mongoUserId)
+	mainGoal, err := c.UserGoalService.GetUserMainGoal(timedContext, mongoUserId)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Could not get user"})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Could not get main goal"})
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, gin.H{"userGoals": goals})
+	ctx.JSON(http.StatusOK, gin.H{"userGoals": mainGoal})
 }
 
 func (c *UserGoalController) RegisterUserGoal(ctx *gin.Context) {

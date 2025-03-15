@@ -14,6 +14,7 @@ enum class GoalType(val value: String) {
 
 data class MainGoalModel(
     val id: String? = null,
+    val userId: String? = null,
 
     val startWeightInKg: Double? = null,
     val startFatPercentage: Double? = null,

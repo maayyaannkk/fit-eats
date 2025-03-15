@@ -10,13 +10,22 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.fiteats.app.ui.viewModel.UserGoalViewModel
 
 @Composable
 fun MyGoalsScreen(onAddWeeklyGoal: () -> Unit, onAddMainGoal: () -> Unit) {
+    val viewModel: UserGoalViewModel = viewModel()
+    val goals by viewModel.userGoals.observeAsState(initial = null)
+
+    LaunchedEffect(Unit) { viewModel.getGoals() }
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(onClick = {
@@ -45,5 +54,5 @@ fun MyGoalsScreen(onAddWeeklyGoal: () -> Unit, onAddMainGoal: () -> Unit) {
 @Preview
 @Composable
 fun MyGoalsScreenPreview() {
-    MyGoalsScreen({},{})
+    MyGoalsScreen({}, {})
 }

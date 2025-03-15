@@ -1,86 +1,70 @@
 package com.fiteats.app.ui.screens.goals
 
-import android.app.DatePickerDialog
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.fiteats.app.models.GoalType
 import com.fiteats.app.models.MainGoalModel
-import com.fiteats.app.ui.viewModel.UserGoalViewModel
-import java.text.SimpleDateFormat
+import com.fiteats.app.models.Pace
+import com.fiteats.app.ui.custom.DateFilters
+import com.fiteats.app.ui.custom.OutlinedDatePicker
+import com.fiteats.app.ui.custom.OutlinedNumberPicker
+import com.fiteats.app.ui.custom.OutlinedSpinner
+import com.fiteats.app.ui.viewModel.AddUserGoalViewModel
+import com.fiteats.app.utils.UserUtils
 import java.util.Calendar
-import java.util.Locale
+import java.util.Date
+
+//TODO disable text fields when loading
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddMainGoalScreen(navController: NavController) {
-    val viewModel: UserGoalViewModel = viewModel()
-
+    val viewModel: AddUserGoalViewModel = viewModel()
     val context = LocalContext.current
 
-    val startWeight = remember { mutableStateOf("") }
-    val startFatPercentage = remember { mutableStateOf("") }
-    val targetWeight = remember { mutableStateOf("") }
-    val targetFatPercentage = remember { mutableStateOf("") }
+    val currentWeight: MutableState<Double?> = remember { mutableStateOf(null) }
+    val currentFatPercentage: MutableState<Double?> = remember { mutableStateOf(null) }
+    val targetWeight: MutableState<Double?> = remember { mutableStateOf(null) }
+    val targetFatPercentage: MutableState<Double?> = remember { mutableStateOf(null) }
 
-    val startDate = remember { mutableStateOf("") }
-    val endDate = remember { mutableStateOf("") }
+    val startDate = remember { mutableStateOf<Date?>(null) }
+    val endDate = remember { mutableStateOf<Date?>(null) }
 
-    val goalType = remember { mutableStateOf(GoalType.FAT_LOSS) }
+    val isLoading by viewModel.isLoading.observeAsState(initial = false)
+    val apiError by viewModel.apiError.observeAsState(initial = null)
 
-    val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-
-    val startDatePickerDialog = DatePickerDialog(
-        context,
-        { _, year, month, dayOfMonth ->
-            val calendar = Calendar.getInstance()
-            calendar.set(year, month, dayOfMonth)
-            startDate.value = dateFormatter.format(calendar.time)
-        },
-        Calendar.getInstance().get(Calendar.YEAR),
-        Calendar.getInstance().get(Calendar.MONTH),
-        Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
-    )
-
-    val endDatePickerDialog = DatePickerDialog(
-        context,
-        { _, year, month, dayOfMonth ->
-            val calendar = Calendar.getInstance()
-            calendar.set(year, month, dayOfMonth)
-            endDate.value = dateFormatter.format(calendar.time)
-        },
-        Calendar.getInstance().get(Calendar.YEAR),
-        Calendar.getInstance().get(Calendar.MONTH),
-        Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
-    )
+    val ideaWeight by viewModel.idealWeight.observeAsState(initial = null)
+    val goalDuration by viewModel.goalDuration.observeAsState(initial = null)
 
     Scaffold(
         topBar = {
@@ -99,92 +83,236 @@ fun AddMainGoalScreen(navController: NavController) {
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            Text("Lets Calculate your ideal weight")
 
-            OutlinedTextField(
+            OutlinedNumberPicker(
+                label = "Current Weight (kg)",
+                numberState = currentWeight,
+                onNumberChanged = { newValue -> currentWeight.value = newValue },
+                minValue = 40.0,
+                maxValue = 200.0,
+                precision = 1,
                 modifier = Modifier.fillMaxWidth(),
-                value = startWeight.value,
-                onValueChange = { startWeight.value = it },
-                label = { Text("Start Weight (kg)") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-            )
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = startFatPercentage.value,
-                onValueChange = { startFatPercentage.value = it },
-                label = { Text("Start Fat %") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                enabled = ideaWeight == null
             )
 
-            OutlinedTextField(
+            OutlinedNumberPicker(
+                label = "Current Fat %",
+                numberState = currentFatPercentage,
+                onNumberChanged = { newValue -> currentFatPercentage.value = newValue },
+                minValue = 15.0,
+                maxValue = 80.0,
+                precision = 1,
                 modifier = Modifier.fillMaxWidth(),
-                value = targetWeight.value,
-                onValueChange = { targetWeight.value = it },
-                label = { Text("Target Weight (kg)") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-            )
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = targetFatPercentage.value,
-                onValueChange = { targetFatPercentage.value = it },
-                label = { Text("Target Fat %") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                enabled = ideaWeight == null
             )
 
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = startDate.value,
-                onValueChange = {},
-                label = { Text("Start Date") },
-                readOnly = true,
-                trailingIcon = {
-                    IconButton(onClick = { startDatePickerDialog.show() }) {
-                        Icon(Icons.Default.DateRange, contentDescription = "Select Start Date")
-                    }
-                })
-
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = endDate.value,
-                onValueChange = {},
-                label = { Text("End Date") },
-                readOnly = true,
-                trailingIcon = {
-                    IconButton(onClick = { endDatePickerDialog.show() }) {
-                        Icon(Icons.Default.DateRange, contentDescription = "Select End Date")
-                    }
-                })
-
-            Button(
-                modifier = Modifier.fillMaxWidth(),
-                onClick = {
-                    try {
-                        val goal = MainGoalModel(
-                            startWeightInKg = startWeight.value.toDoubleOrNull(),
-                            startFatPercentage = startFatPercentage.value.toDoubleOrNull(),
-                            targetWeightInKg = targetWeight.value.toDoubleOrNull(),
-                            targetFatPercentage = targetFatPercentage.value.toDoubleOrNull(),
-                            goalStartDate = dateFormatter.parse(startDate.value),
-                            goalEndDate = dateFormatter.parse(endDate.value),
-                            goalType = goalType.value
-                        )
-
-                        if (goal.startWeightInKg == null || goal.startFatPercentage == null ||
-                            goal.targetWeightInKg == null || goal.targetFatPercentage == null ||
-                            goal.goalStartDate == null || goal.goalEndDate == null
-                        ) {
+            if (ideaWeight == null) {
+                Button(
+                    enabled = !isLoading,
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        // Validate start fields
+                        if (currentWeight.value == null || currentFatPercentage.value == null) {
                             Toast.makeText(
                                 context,
-                                "Please fill all fields correctly",
-                                Toast.LENGTH_LONG
+                                "Please enter start weight and fat percentage.",
+                                Toast.LENGTH_SHORT
                             ).show()
                         } else {
-                            //navController.popBackStack()
+                            // Call API to get ideal weight
+                            val weight = currentWeight.value
+                            val fat = currentFatPercentage.value
+                            if (weight != null && fat != null) {
+                                viewModel.getIdealWeight(
+                                    weight,
+                                    fat
+                                )
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    "Please enter valid start weight and fat percentage.",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                         }
-                    } catch (e: Exception) {
-                        Toast.makeText(context, "Invalid data format", Toast.LENGTH_LONG).show()
+                    },
+                ) {
+                    Text("Next")
+                }
+            }
+            if (ideaWeight != null) {
+                Text("Your ideal weight should be between ${ideaWeight?.lowerBound?.weightInKg!!}kg and ${ideaWeight?.upperBound?.weightInKg!!}kg")
+
+                OutlinedNumberPicker(
+                    label = "Target Weight (kg)",
+                    numberState = targetWeight,
+                    onNumberChanged = { newValue -> targetWeight.value = newValue },
+                    minValue = ideaWeight?.lowerBound?.weightInKg!!,
+                    maxValue = ideaWeight?.upperBound?.weightInKg!!,
+                    precision = 1,
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = goalDuration == null
+                )
+
+                OutlinedNumberPicker(
+                    label = "Target Fat %",
+                    numberState = targetFatPercentage,
+                    onNumberChanged = { newValue -> targetFatPercentage.value = newValue },
+                    minValue = ideaWeight?.lowerBound?.fatPercentage!!,
+                    maxValue = ideaWeight?.upperBound?.fatPercentage!!,
+                    precision = 1,
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = goalDuration == null
+                )
+                if (goalDuration == null) {
+                    Button(
+                        enabled = !isLoading,
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = {
+                            if (currentWeight.value != null && targetWeight.value != null &&
+                                currentFatPercentage.value != null && targetFatPercentage.value != null
+                            ) {
+                                viewModel.getGoalDuration(
+                                    currentWeight.value!!,
+                                    currentFatPercentage.value!!,
+                                    targetWeight.value!!,
+                                    targetFatPercentage.value!!
+                                )
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    "Please enter valid start or target weight and fat percentage.",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        },
+                    ) {
+                        Text("Next")
                     }
-                }) {
-                Text("Submit")
+                }
+            }
+
+            if (goalDuration != null) {
+                Text("Lets set a duration to get to your healthy weight")
+
+                val durationOptions = mutableListOf<Pace>()
+                goalDuration?.let {
+                    durationOptions.add(
+                        Pace(
+                            weeklyWeightChangeKg = it.paceOptions.slow.weeklyWeightChangeKg,
+                            durationWeeks = it.paceOptions.slow.durationWeeks,
+                            notes = it.paceOptions.slow.notes,
+                            type = "Slow",
+                            goalType = it.type
+                        )
+                    )
+                    durationOptions.add(
+                        Pace(
+                            weeklyWeightChangeKg = it.paceOptions.medium.weeklyWeightChangeKg,
+                            durationWeeks = it.paceOptions.medium.durationWeeks,
+                            notes = it.paceOptions.medium.notes,
+                            type = "Medium",
+                            goalType = it.type
+                        )
+                    )
+                    durationOptions.add(
+                        Pace(
+                            weeklyWeightChangeKg = it.paceOptions.fast.weeklyWeightChangeKg,
+                            durationWeeks = it.paceOptions.fast.durationWeeks,
+                            notes = it.paceOptions.fast.notes,
+                            type = "Fast",
+                            goalType = it.type
+                        )
+                    )
+                }
+                val selectedOption: MutableState<Pace?> = remember { mutableStateOf(null) }
+
+                OutlinedSpinner(
+                    label = "Select Goal Duration",
+                    items = durationOptions,
+                    modifier = Modifier.fillMaxWidth(),
+                    selectedItem = selectedOption,
+                    itemToString = { it ->
+                        "${it.type} - ${it.durationWeeks} weeks, ${it.weeklyWeightChangeKg}kg per week, ${it.notes}"
+                    },
+                    onItemSelected = { item ->
+                        selectedOption.value = item
+                        startDate.value = null
+                        endDate.value = null
+                    }
+                )
+
+                OutlinedDatePicker(
+                    label = "Start Date",
+                    dateState = startDate,
+                    onDateSelected = { it ->
+                        endDate.value = Calendar.getInstance().apply {
+                            time = it
+                            add(Calendar.WEEK_OF_YEAR, selectedOption.value?.durationWeeks ?: 0)
+                        }.time
+                    },
+                    minDate = DateFilters.oneMonth().first,
+                    maxDate = DateFilters.oneMonth().second,
+                    isDisabled = selectedOption.value == null
+                )
+
+                OutlinedDatePicker(
+                    label = "End Date",
+                    dateState = endDate,
+                    onDateSelected = { },
+                    minDate = DateFilters.oneMonth().first,
+                    maxDate = DateFilters.oneMonth().second,
+                    isDisabled = true
+                )
+                Button(
+                    enabled = !isLoading,
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        try {
+                            val goal = MainGoalModel(
+                                userId = UserUtils.getUser(context)?.id,
+                                startWeightInKg = currentWeight.value,
+                                startFatPercentage = currentFatPercentage.value,
+                                targetWeightInKg = targetWeight.value,
+                                targetFatPercentage = targetFatPercentage.value,
+                                goalStartDate = startDate.value,
+                                goalEndDate = endDate.value,
+                                goalType = selectedOption.value?.goalType
+                            )
+
+                            if (goal.startWeightInKg == null || goal.startFatPercentage == null ||
+                                goal.targetWeightInKg == null || goal.targetFatPercentage == null ||
+                                goal.goalStartDate == null || goal.goalEndDate == null || goal.goalType == null
+                            ) {
+                                Toast.makeText(
+                                    context,
+                                    "Please fill all fields correctly",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            } else {
+                                viewModel.registerNewGoal(goal)
+                            }
+                        } catch (e: Exception) {
+                            Toast.makeText(context, "Invalid data format", Toast.LENGTH_LONG)
+                                .show()
+                        }
+                    }) { Text("Submit") }
+            }
+
+            // Observe API Error
+            apiError?.let { error ->
+                Toast.makeText(context, error, Toast.LENGTH_LONG).show()
+            }
+
+            // Show Loading Indicator
+            if (isLoading) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    CircularProgressIndicator()
+                }
             }
         }
     }

@@ -22,7 +22,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -34,7 +33,7 @@ fun <T> OutlinedSpinner(
     items: List<T>,
     selectedItem: MutableState<T?>,
     onItemSelected: (T?) -> Unit,
-    itemToString: (T) -> String = { it?.toString() ?: "" },
+    itemToString: (T) -> String,
     modifier: Modifier = Modifier
 ) {
     var showDialog by remember { mutableStateOf(false) }
@@ -50,6 +49,7 @@ fun <T> OutlinedSpinner(
             onValueChange = { },
             label = { Text(label) },
             readOnly = true,
+            singleLine = true,
             trailingIcon = {
                 Icon(
                     imageVector = Icons.Filled.ArrowDropDown,
@@ -94,8 +94,6 @@ fun <T> OutlinedSpinner(
                                         }
                                         .padding(vertical = 12.dp),
                                     style = MaterialTheme.typography.bodyLarge,
-                                    maxLines = 2,
-                                    overflow = TextOverflow.Ellipsis
                                 )
                                 HorizontalDivider()
                             }

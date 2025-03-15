@@ -44,20 +44,15 @@ func (r *UserGoalRepository) CreateWeeklyUserGoal(ctx context.Context, mainGoalI
 	return nil
 }
 
-func (r *UserGoalRepository) GetUserGoalsByUserId(ctx context.Context, mongoUserId primitive.ObjectID) ([]models.Goal, error) {
-	var userGoals []models.Goal
+func (r *UserGoalRepository) GetUserGoalByUserId(ctx context.Context, mongoUserId primitive.ObjectID) (*models.Goal, error) {
+	var userGoal models.Goal
+	err := r.Collection.FindOne(ctx, bson.M{"userId": mongoUserId}).Decode(&userGoal)
 
-	cursor, err := r.Collection.Find(ctx, bson.M{"userId": mongoUserId})
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(ctx)
 
-	if err = cursor.All(ctx, &userGoals); err != nil {
-		return nil, err
-	}
-
-	return userGoals, nil
+	return &userGoal, nil
 }
 
 func (r *UserGoalRepository) DeleteMainUserGoal(ctx context.Context, goalId primitive.ObjectID) error {

@@ -27,7 +27,7 @@ fun OutlinedDatePicker(
     isDisabled: Boolean = false
 ) {
     val context = LocalContext.current
-    val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    val dateFormatter = SimpleDateFormat("dd MMMM, yy", Locale.getDefault())
 
     val calendar = Calendar.getInstance()
 
