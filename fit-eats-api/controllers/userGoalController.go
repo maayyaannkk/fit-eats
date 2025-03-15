@@ -57,7 +57,13 @@ func (c *UserGoalController) RegisterUserGoal(ctx *gin.Context) {
 
 	errors := utils.ValidateStruct(userGoal)
 	if errors != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"errors": errors})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": errors})
+		return
+	}
+
+	goal, _ := c.UserGoalService.GetUserMainGoal(ctx, userGoal.UserId)
+	if goal != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Main goal is already created!"})
 		return
 	}
 
@@ -67,7 +73,7 @@ func (c *UserGoalController) RegisterUserGoal(ctx *gin.Context) {
 	// Register user
 	err := c.UserGoalService.RegisterUserGoal(timedContext, &userGoal)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Could not register goal"})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Could not register goal: " + err.Error()})
 		return
 	}
 

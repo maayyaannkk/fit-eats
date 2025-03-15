@@ -27,6 +27,9 @@ class AddUserGoalViewModel(application: Application) : AndroidViewModel(applicat
     private val _apiError = MutableLiveData<String?>()
     val apiError: MutableLiveData<String?> get() = _apiError
 
+    private val _finalSubmit = MutableLiveData<Boolean>()
+    val finalSubmit: MutableLiveData<Boolean> get() = _finalSubmit
+
     fun registerNewGoal(mainGoalModel: MainGoalModel) {
         viewModelScope.launch {
             try {
@@ -34,6 +37,7 @@ class AddUserGoalViewModel(application: Application) : AndroidViewModel(applicat
                 if (response.isSuccessful) {
                     val responseString = response.body()!!
                     _apiError.value = null // Clear any previous error
+                    _finalSubmit.value = true
                 } else {
                     val errorJson = response.errorBody()?.string()
                     val errorMessage = try {

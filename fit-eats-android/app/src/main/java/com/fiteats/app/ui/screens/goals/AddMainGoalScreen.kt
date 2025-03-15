@@ -35,6 +35,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.fiteats.app.models.MainGoalModel
 import com.fiteats.app.models.Pace
+import com.fiteats.app.ui.custom.CustomDialog
 import com.fiteats.app.ui.custom.DateFilters
 import com.fiteats.app.ui.custom.OutlinedDatePicker
 import com.fiteats.app.ui.custom.OutlinedNumberPicker
@@ -43,8 +44,6 @@ import com.fiteats.app.ui.viewModel.AddUserGoalViewModel
 import com.fiteats.app.utils.UserUtils
 import java.util.Calendar
 import java.util.Date
-
-//TODO disable text fields when loading
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -93,7 +92,7 @@ fun AddMainGoalScreen(navController: NavController) {
                 maxValue = 200.0,
                 precision = 1,
                 modifier = Modifier.fillMaxWidth(),
-                enabled = ideaWeight == null
+                enabled = ideaWeight == null && !isLoading
             )
 
             OutlinedNumberPicker(
@@ -104,7 +103,7 @@ fun AddMainGoalScreen(navController: NavController) {
                 maxValue = 80.0,
                 precision = 1,
                 modifier = Modifier.fillMaxWidth(),
-                enabled = ideaWeight == null
+                enabled = ideaWeight == null && !isLoading
             )
 
             if (ideaWeight == null) {
@@ -152,7 +151,7 @@ fun AddMainGoalScreen(navController: NavController) {
                     maxValue = ideaWeight?.upperBound?.weightInKg!!,
                     precision = 1,
                     modifier = Modifier.fillMaxWidth(),
-                    enabled = goalDuration == null
+                    enabled = goalDuration == null && !isLoading
                 )
 
                 OutlinedNumberPicker(
@@ -163,7 +162,7 @@ fun AddMainGoalScreen(navController: NavController) {
                     maxValue = ideaWeight?.upperBound?.fatPercentage!!,
                     precision = 1,
                     modifier = Modifier.fillMaxWidth(),
-                    enabled = goalDuration == null
+                    enabled = goalDuration == null && !isLoading
                 )
                 if (goalDuration == null) {
                     Button(
@@ -313,6 +312,18 @@ fun AddMainGoalScreen(navController: NavController) {
                 ) {
                     CircularProgressIndicator()
                 }
+            }
+
+            val finalSubmit by viewModel.finalSubmit.observeAsState(initial = null)
+            if (finalSubmit == true) {
+                CustomDialog(
+                    title = "Goal Created",
+                    message = "Lets Go! A main goal helps to track your progress. Lets create weekly goals to further track meals and progress",
+                    showNegativeButton = false,
+                    onDismissRequest = {
+                        navController.popBackStack()
+                    }
+                )
             }
         }
     }
