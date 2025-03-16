@@ -32,6 +32,7 @@ data class MainGoalModel(
 
 data class WeeklyGoalModel(
     val id: String? = null,
+    val mainGoalId: String? = null,
 
     val startDate: Date? = null,
     val endDate: Date? = null,
