@@ -26,6 +26,7 @@ data class MainGoalModel(
     val goalEndDate: Date? = null,
 
     val goalType: GoalType? = null,
+    val weeklyWeightChange: Float? = null,
 
     val weeklyGoals: List<WeeklyGoalModel>? = null
 )
@@ -40,12 +41,10 @@ data class WeeklyGoalModel(
     val currentWeightInKg: Double? = null,
     val currentFatPercentage: Double? = null,
 
-    val dailyMaintenanceCalories: Double? = null,
-    val targetDailyCalories: Double? = null,
+    val dailyMaintenanceCalories: Int? = null,
+    val targetDailyCalories: Int? = null,
 
-    val targetDailyMacrosProtein: Double? = null,
-    val targetDailyMacrosCarbs: Double? = null,
-    val targetDailyMacrosFats: Double? = null,
-
-    val workoutRoutine: String? = null
+    val targetDailyMacrosProtein: Int? = null,
+    val targetDailyMacrosCarbs: Int? = null,
+    val targetDailyMacrosFats: Int? = null,
 )

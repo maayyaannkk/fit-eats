@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -15,11 +16,13 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.fiteats.app.models.MainGoalModel
 import com.fiteats.app.ui.components.MainGoalCard
 import com.fiteats.app.ui.viewModel.UserGoalViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyGoalsScreen(onAddWeeklyGoal: () -> Unit, onAddMainGoal: () -> Unit) {
+fun MyGoalsScreen(onAddWeeklyGoal: (MainGoalModel) -> Unit, onAddMainGoal: () -> Unit) {
     val viewModel: UserGoalViewModel = viewModel()
     val mainGoal by viewModel.userGoals.observeAsState(initial = null)
 
@@ -28,7 +31,7 @@ fun MyGoalsScreen(onAddWeeklyGoal: () -> Unit, onAddMainGoal: () -> Unit) {
         floatingActionButton = {
             FloatingActionButton(onClick = {
                 if (mainGoal == null) onAddMainGoal()
-                else onAddWeeklyGoal()
+                else onAddWeeklyGoal(mainGoal!!)
             }) {
                 Icon(Icons.Filled.Add, "Add")
             }

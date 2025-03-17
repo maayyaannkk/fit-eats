@@ -22,6 +22,7 @@ import com.fiteats.app.ui.screens.main.HomeScreen
 import com.fiteats.app.ui.screens.main.MealScreen
 import com.fiteats.app.ui.screens.main.MyGoalsScreen
 import com.fiteats.app.ui.screens.main.ProfileScreen
+import com.fiteats.app.utils.GsonUtil
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -54,7 +55,14 @@ fun MainScreen(mainNavController: NavController) {
             composable(BottomNavItem.Meals.route) { MealScreen() }
             composable(BottomNavItem.Goals.route) {
                 MyGoalsScreen(
-                    onAddWeeklyGoal = { mainNavController.navigate(route = Screens.AddWeeklyGoalScreen.route) },
+                    onAddWeeklyGoal = { mainGoal ->
+                        val route = Screens.AddWeeklyGoalScreen.route +
+                                "/" +
+                                GsonUtil.gson.toJson(mainGoal)
+                        mainNavController.navigate(
+                            route = route
+                        )
+                    },
                     onAddMainGoal = { mainNavController.navigate(route = Screens.AddMainGoalScreen.route) }
                 )
             }

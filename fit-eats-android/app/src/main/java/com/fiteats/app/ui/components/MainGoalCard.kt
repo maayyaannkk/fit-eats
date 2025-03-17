@@ -44,7 +44,7 @@ fun MainGoalCard(goal: MainGoalModel) {
             .fillMaxWidth(),
         shape = RoundedCornerShape(0.dp),
         colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 1.dp)
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 5.dp)
     ) {
         Column(
             modifier = Modifier.padding(24.dp),
@@ -125,15 +125,9 @@ fun MainGoalCard(goal: MainGoalModel) {
     }
 
     if (!goal.weeklyGoals.isNullOrEmpty()) {
-        Text(
-            text = "Weekly Goals",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onSurface
-        )
+        Spacer(modifier = Modifier.height(8.dp))
         LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.heightIn(max = 200.dp) // Limit the height to prevent excessive scrolling
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(goal.weeklyGoals) {
                 WeeklyGoalCard(weeklyGoal = it)

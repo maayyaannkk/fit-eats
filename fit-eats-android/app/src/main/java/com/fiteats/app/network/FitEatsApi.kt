@@ -1,9 +1,12 @@
 package com.fiteats.app.network
 
+import com.fiteats.app.models.CalorieExpenditure
 import com.fiteats.app.models.GoalDuration
 import com.fiteats.app.models.IdealWeight
+import com.fiteats.app.models.MacroGoal
 import com.fiteats.app.models.MainGoalModel
 import com.fiteats.app.models.UserModel
+import com.fiteats.app.models.WeeklyGoalModel
 import com.google.gson.JsonObject
 import retrofit2.Response
 import retrofit2.http.Body
@@ -56,7 +59,7 @@ interface FitEatsApi {
 
     @POST("registerWeeklyGoal")
     suspend fun registerWeeklyGoal(
-        @Body goalModel: MainGoalModel,
+        @Body goalModel: WeeklyGoalModel,
         @Query("mainGoalId") mainGoalId: String
     ): Response<JsonObject>
 
@@ -83,5 +86,28 @@ interface FitEatsApi {
         @Query("goalWeightInKg") goalWeightInKg: Double,
         @Query("goalBodyFatPercentage") goalBodyFatPercentage: Double
     ): Response<GoalDuration>
+
+    @GET("getTdee")
+    suspend fun getTdee(
+        @Query("userId") userId: String,
+        @Query("currentWeightInKg") currentWeightInKg: Double,
+        @Query("currentBodyFatPercentage") currentBodyFatPercentage: Double,
+        @Query("goalWeightInKg") goalWeightInKg: Double,
+        @Query("goalBodyFatPercentage") goalBodyFatPercentage: Double,
+        @Query("goalType") goalType: String
+    ): Response<CalorieExpenditure>
+
+    @GET("getMacros")
+    suspend fun getMacros(
+        @Query("userId") userId: String,
+        @Query("currentWeightInKg") currentWeightInKg: Double,
+        @Query("currentBodyFatPercentage") currentBodyFatPercentage: Double,
+        @Query("goalWeightInKg") goalWeightInKg: Double,
+        @Query("goalBodyFatPercentage") goalBodyFatPercentage: Double,
+        @Query("goalType") goalType: String,
+        @Query("currentBmr") currentBmr: Int,
+        @Query("currentTdee") currentTdee: Int,
+        @Query("weightChange") weightChange: Float,
+    ): Response<MacroGoal>
     //endregion
 }

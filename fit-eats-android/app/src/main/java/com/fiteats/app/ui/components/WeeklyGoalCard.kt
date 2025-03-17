@@ -35,6 +35,7 @@ fun WeeklyGoalCard(weeklyGoal: WeeklyGoalModel) {
     Card(
         modifier = Modifier
             .fillMaxWidth(),
+        shape = RoundedCornerShape(5.dp),
         colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 5.dp)
     ) {
@@ -54,7 +55,7 @@ fun WeeklyGoalCard(weeklyGoal: WeeklyGoalModel) {
                 )
                 Text(
                     text = "Weekly Progress",
-                    style = MaterialTheme.typography.headlineSmall,
+                    style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Bold
                 )
@@ -119,26 +120,12 @@ fun WeeklyGoalCard(weeklyGoal: WeeklyGoalModel) {
                 carbs = weeklyGoal.targetDailyMacrosCarbs,
                 fats = weeklyGoal.targetDailyMacrosFats
             )
-
-            Column {
-                Text(
-                    text = "Workout Routine",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = weeklyGoal.workoutRoutine ?: "No Routine Set",
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Normal,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
         }
     }
 }
 
 @Composable
-fun MacrosRow(protein: Double?, carbs: Double?, fats: Double?) {
+fun MacrosRow(protein: Int?, carbs: Int?, fats: Int?) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
@@ -195,12 +182,11 @@ fun WeeklyGoalCardPreview() {
             endDate = Date(System.currentTimeMillis() + (7 * 24 * 60 * 60 * 1000)),
             currentWeightInKg = 75.5,
             currentFatPercentage = 23.2,
-            dailyMaintenanceCalories = 2500.0,
-            targetDailyCalories = 2000.0,
-            targetDailyMacrosProtein = 150.0,
-            targetDailyMacrosCarbs = 100.0,
-            targetDailyMacrosFats = 70.0,
-            workoutRoutine = "Full Body Workout"
+            dailyMaintenanceCalories = 2500,
+            targetDailyCalories = 2000,
+            targetDailyMacrosProtein = 150,
+            targetDailyMacrosCarbs = 100,
+            targetDailyMacrosFats = 70
         )
     )
 }

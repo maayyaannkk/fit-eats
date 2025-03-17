@@ -205,101 +205,33 @@ func GetTdeeModel() *genai.GenerativeModel {
 			temp := getBaseModel()
 			temp.ResponseSchema = &genai.Schema{
 				Type: genai.TypeObject,
-				Properties: map[string]*genai.Schema{
-					"bmr": {
-						Type: genai.TypeNumber,
-					},
-					"tdee": {
-						Type: genai.TypeObject,
-						Properties: map[string]*genai.Schema{
-							"sedentary_tdee": {
-								Type: genai.TypeObject,
-								Properties: map[string]*genai.Schema{
-									"description": {
-										Type: genai.TypeString,
-									},
-									"tdee": {
-										Type: genai.TypeNumber,
-									},
-								},
-								Required: []string{
-									"description",
-									"tdee",
-								},
-							},
-							"lightly_active_tdee": {
-								Type: genai.TypeObject,
-								Properties: map[string]*genai.Schema{
-									"description": {
-										Type: genai.TypeString,
-									},
-									"tdee": {
-										Type: genai.TypeNumber,
-									},
-								},
-								Required: []string{
-									"description",
-									"tdee",
-								},
-							},
-							"moderately_active_tdee": {
-								Type: genai.TypeObject,
-								Properties: map[string]*genai.Schema{
-									"description": {
-										Type: genai.TypeString,
-									},
-									"tdee": {
-										Type: genai.TypeNumber,
-									},
-								},
-								Required: []string{
-									"description",
-									"tdee",
-								},
-							},
-							"very_active_tdee": {
-								Type: genai.TypeObject,
-								Properties: map[string]*genai.Schema{
-									"description": {
-										Type: genai.TypeString,
-									},
-									"tdee": {
-										Type: genai.TypeNumber,
-									},
-								},
-								Required: []string{
-									"description",
-									"tdee",
-								},
-							},
-							"extra_active_tdee": {
-								Type: genai.TypeObject,
-								Properties: map[string]*genai.Schema{
-									"description": {
-										Type: genai.TypeString,
-									},
-									"tdee": {
-										Type: genai.TypeNumber,
-									},
-								},
-								Required: []string{
-									"description",
-									"tdee",
-								},
-							},
-						},
-						Required: []string{
-							"sedentary_tdee",
-							"lightly_active_tdee",
-							"moderately_active_tdee",
-							"very_active_tdee",
-							"extra_active_tdee",
-						},
-					},
-				},
 				Required: []string{
 					"bmr",
 					"tdee",
+				},
+				Properties: map[string]*genai.Schema{
+					"bmr": {
+						Type: genai.TypeInteger,
+					},
+					"tdee": {
+						Type: genai.TypeArray,
+						Items: &genai.Schema{
+							Type:     genai.TypeObject,
+							Required: []string{"description", "tdee", "lifestyle"},
+							Properties: map[string]*genai.Schema{
+								"description": {
+									Type: genai.TypeString,
+								},
+								"tdee": {
+									Type: genai.TypeInteger,
+								},
+								"lifestyle": {
+									Type: genai.TypeString,
+									Enum: []string{"Sedentary", "Light", "Moderate", "Very Active", "Extra Active"},
+								},
+							},
+						},
+					},
 				},
 			}
 			tdeeModel = &temp

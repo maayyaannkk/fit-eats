@@ -40,7 +40,7 @@ import com.fiteats.app.ui.custom.DateFilters
 import com.fiteats.app.ui.custom.OutlinedDatePicker
 import com.fiteats.app.ui.custom.OutlinedNumberPicker
 import com.fiteats.app.ui.custom.OutlinedSpinner
-import com.fiteats.app.ui.viewModel.AddUserGoalViewModel
+import com.fiteats.app.ui.viewModel.AddMainGoalViewModel
 import com.fiteats.app.utils.UserUtils
 import java.util.Calendar
 import java.util.Date
@@ -48,7 +48,7 @@ import java.util.Date
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddMainGoalScreen(navController: NavController) {
-    val viewModel: AddUserGoalViewModel = viewModel()
+    val viewModel: AddMainGoalViewModel = viewModel()
     val context = LocalContext.current
 
     val currentWeight: MutableState<Double?> = remember { mutableStateOf(null) }
@@ -62,7 +62,7 @@ fun AddMainGoalScreen(navController: NavController) {
     val isLoading by viewModel.isLoading.observeAsState(initial = false)
     val apiError by viewModel.apiError.observeAsState(initial = null)
 
-    val ideaWeight by viewModel.idealWeight.observeAsState(initial = null)
+    val idealWeight by viewModel.idealWeight.observeAsState(initial = null)
     val goalDuration by viewModel.goalDuration.observeAsState(initial = null)
 
     Scaffold(
@@ -92,7 +92,7 @@ fun AddMainGoalScreen(navController: NavController) {
                 maxValue = 200.0,
                 precision = 1,
                 modifier = Modifier.fillMaxWidth(),
-                enabled = ideaWeight == null && !isLoading
+                enabled = idealWeight == null && !isLoading
             )
 
             OutlinedNumberPicker(
@@ -103,16 +103,18 @@ fun AddMainGoalScreen(navController: NavController) {
                 maxValue = 80.0,
                 precision = 1,
                 modifier = Modifier.fillMaxWidth(),
-                enabled = ideaWeight == null && !isLoading
+                enabled = idealWeight == null && !isLoading
             )
 
-            if (ideaWeight == null) {
+            if (idealWeight == null) {
                 Button(
                     enabled = !isLoading,
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
                         // Validate start fields
-                        if (currentWeight.value == null || currentFatPercentage.value == null) {
+                        if (currentWeight.value == null || currentFatPercentage.value == null ||
+                            currentWeight.value!! !in (40.0..200.0) || currentFatPercentage.value!! !in (15.0..80.0)
+                        ) {
                             Toast.makeText(
                                 context,
                                 "Please enter start weight and fat percentage.",
@@ -140,15 +142,15 @@ fun AddMainGoalScreen(navController: NavController) {
                     Text("Next")
                 }
             }
-            if (ideaWeight != null) {
-                Text("Your ideal weight should be between ${ideaWeight?.lowerBound?.weightInKg!!}kg and ${ideaWeight?.upperBound?.weightInKg!!}kg")
+            if (idealWeight != null) {
+                Text("Your ideal weight should be between ${idealWeight?.lowerBound?.weightInKg!!}kg and ${idealWeight?.upperBound?.weightInKg!!}kg")
 
                 OutlinedNumberPicker(
                     label = "Target Weight (kg)",
                     numberState = targetWeight,
                     onNumberChanged = { newValue -> targetWeight.value = newValue },
-                    minValue = ideaWeight?.lowerBound?.weightInKg!!,
-                    maxValue = ideaWeight?.upperBound?.weightInKg!!,
+                    minValue = idealWeight?.lowerBound?.weightInKg!!,
+                    maxValue = idealWeight?.upperBound?.weightInKg!!,
                     precision = 1,
                     modifier = Modifier.fillMaxWidth(),
                     enabled = goalDuration == null && !isLoading
@@ -158,8 +160,8 @@ fun AddMainGoalScreen(navController: NavController) {
                     label = "Target Fat %",
                     numberState = targetFatPercentage,
                     onNumberChanged = { newValue -> targetFatPercentage.value = newValue },
-                    minValue = ideaWeight?.lowerBound?.fatPercentage!!,
-                    maxValue = ideaWeight?.upperBound?.fatPercentage!!,
+                    minValue = idealWeight?.lowerBound?.fatPercentage!!,
+                    maxValue = idealWeight?.upperBound?.fatPercentage!!,
                     precision = 1,
                     modifier = Modifier.fillMaxWidth(),
                     enabled = goalDuration == null && !isLoading
@@ -170,7 +172,9 @@ fun AddMainGoalScreen(navController: NavController) {
                         modifier = Modifier.fillMaxWidth(),
                         onClick = {
                             if (currentWeight.value != null && targetWeight.value != null &&
-                                currentFatPercentage.value != null && targetFatPercentage.value != null
+                                currentFatPercentage.value != null && targetFatPercentage.value != null &&
+                                targetWeight.value!! in (idealWeight?.lowerBound?.weightInKg!!..idealWeight?.upperBound?.weightInKg!!) &&
+                                targetFatPercentage.value!! in (idealWeight?.lowerBound?.fatPercentage!!..idealWeight?.upperBound?.fatPercentage!!)
                             ) {
                                 viewModel.getGoalDuration(
                                     currentWeight.value!!,
@@ -277,7 +281,8 @@ fun AddMainGoalScreen(navController: NavController) {
                                 targetFatPercentage = targetFatPercentage.value,
                                 goalStartDate = startDate.value,
                                 goalEndDate = endDate.value,
-                                goalType = selectedOption.value?.goalType
+                                goalType = selectedOption.value?.goalType,
+                                weeklyWeightChange = selectedOption.value?.weeklyWeightChangeKg!!
                             )
 
                             if (goal.startWeightInKg == null || goal.startFatPercentage == null ||

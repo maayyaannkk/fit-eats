@@ -3,15 +3,19 @@ package com.fiteats.app.ui.navigation
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.fiteats.app.models.MainGoalModel
 import com.fiteats.app.ui.screens.LoginScreen
 import com.fiteats.app.ui.screens.MainScreen
 import com.fiteats.app.ui.screens.RegisterScreen
 import com.fiteats.app.ui.screens.SplashScreen
 import com.fiteats.app.ui.screens.goals.AddMainGoalScreen
 import com.fiteats.app.ui.screens.goals.AddWeeklyGoalScreen
+import com.fiteats.app.utils.GsonUtil
 
 @Composable
 fun AppNavigation() {
@@ -47,6 +51,18 @@ fun AppNavigation() {
         composable(Screens.RegisterScreen.route) { RegisterScreen(navController) }
         composable(Screens.MainScreen.route) { MainScreen(navController) }
         composable(Screens.AddMainGoalScreen.route) { AddMainGoalScreen(navController) }
-        composable(Screens.AddWeeklyGoalScreen.route) { AddWeeklyGoalScreen(navController) }
+        composable(
+            route = Screens.AddWeeklyGoalScreen.route + "/{mainGoal}",
+            arguments = listOf(navArgument("mainGoal") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val mainGoalJson = backStackEntry.arguments?.getString("mainGoal")
+            val user = mainGoalJson?.let {
+                GsonUtil.gson.fromJson<MainGoalModel>(
+                    mainGoalJson,
+                    MainGoalModel::class.java
+                )
+            }
+            user?.let { AddWeeklyGoalScreen(navController, it) }
+        }
     }
 }

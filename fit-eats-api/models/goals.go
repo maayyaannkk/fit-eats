@@ -34,7 +34,8 @@ type Goal struct {
 	GoalStartDate time.Time `bson:"goalStartDate" json:"goalStartDate"`
 	GoalEndDate   time.Time `bson:"goalEndDate" json:"goalEndDate"`
 
-	GoalType GoalType `bson:"goalType" json:"goalType"`
+	GoalType           GoalType `bson:"goalType" json:"goalType"`
+	WeeklyWeightChange float64  `bson:"weeklyWeightChange" json:"weeklyWeightChange"`
 
 	WeeklyGoals []WeeklyGoal `bson:"weeklyGoals" json:"weeklyGoals"`
 }

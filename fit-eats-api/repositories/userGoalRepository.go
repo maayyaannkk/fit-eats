@@ -25,20 +25,24 @@ func (r *UserGoalRepository) CreateMainUserGoal(ctx context.Context, mainGoal *m
 }
 
 func (r *UserGoalRepository) CreateWeeklyUserGoal(ctx context.Context, mainGoalId primitive.ObjectID, weeklyGoal *models.WeeklyGoal) error {
-	weeklyGoal.ID = primitive.NewObjectID() // Generate ID for the weekly goal
+	weeklyGoal.ID = primitive.NewObjectID() // Generate a new ID for the weekly goal
 
-	filter := bson.M{"_id": mainGoalId}
+	// Ensure 'weeklyGoals' is an array before pushing a new item
+	filter := bson.M{"_id": mainGoalId, "$or": []bson.M{{"weeklyGoals": bson.M{"$exists": false}}, {"weeklyGoals": nil}}}
+	initUpdate := bson.M{"$set": bson.M{"weeklyGoals": bson.A{}}}
 
+	_, _ = r.Collection.UpdateOne(ctx, filter, initUpdate) // Set only if 'weeklyGoals' does not exist
+
+	// Now push the new weekly goal into the array
 	update := bson.M{"$push": bson.M{"weeklyGoals": weeklyGoal}}
 
-	result, err := r.Collection.UpdateOne(ctx, filter, update)
-
+	result, err := r.Collection.UpdateOne(ctx, bson.M{"_id": mainGoalId}, update)
 	if err != nil {
 		return err
 	}
 
 	if result.ModifiedCount == 0 {
-		return mongo.ErrNoDocuments // Or a custom error if you prefer
+		return mongo.ErrNoDocuments // No document found to update
 	}
 
 	return nil
