@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fit-eats-api/config"
 	"fit-eats-api/models"
-	"fit-eats-api/services"
+	"fit-eats-api/repositories"
 	"fit-eats-api/utils"
 	"fmt"
 	"net/http"
@@ -16,12 +16,12 @@ import (
 )
 
 type UserGoalController struct {
-	UserService     *services.UserService
-	UserGoalService *services.UserGoalService
+	UserRepository     *repositories.UserRepository
+	UserGoalRepository *repositories.UserGoalRepository
 }
 
-func NewUserGoalController(service *services.UserGoalService, userService *services.UserService) *UserGoalController {
-	return &UserGoalController{UserGoalService: service, UserService: userService}
+func NewUserGoalController(userRepository *repositories.UserRepository, userGoalRepository *repositories.UserGoalRepository) *UserGoalController {
+	return &UserGoalController{UserRepository: userRepository, UserGoalRepository: userGoalRepository}
 }
 
 func (c *UserGoalController) GetUserGoals(ctx *gin.Context) {
@@ -39,7 +39,7 @@ func (c *UserGoalController) GetUserGoals(ctx *gin.Context) {
 	timedContext, cancel := config.GetTimedContext()
 	defer cancel()
 
-	mainGoal, err := c.UserGoalService.GetUserMainGoal(timedContext, mongoUserId)
+	mainGoal, err := c.UserGoalRepository.GetUserGoalByUserId(timedContext, mongoUserId)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Could not get main goal"})
 		return
@@ -61,17 +61,17 @@ func (c *UserGoalController) RegisterUserGoal(ctx *gin.Context) {
 		return
 	}
 
-	goal, _ := c.UserGoalService.GetUserMainGoal(ctx, userGoal.UserId)
+	timedContext, cancel := config.GetTimedContext()
+	defer cancel()
+
+	goal, _ := c.UserGoalRepository.GetUserGoalByUserId(timedContext, userGoal.UserId)
 	if goal != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Main goal is already created!"})
 		return
 	}
 
-	timedContext, cancel := config.GetTimedContext()
-	defer cancel()
-
 	// Register user
-	err := c.UserGoalService.RegisterUserGoal(timedContext, &userGoal)
+	err := c.UserGoalRepository.CreateMainUserGoal(timedContext, &userGoal)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Could not register goal: " + err.Error()})
 		return
@@ -108,7 +108,7 @@ func (c *UserGoalController) RegisterWeeklyUserGoal(ctx *gin.Context) {
 	defer cancel()
 
 	// Register user
-	err := c.UserGoalService.RegisterWeeklyGoal(timedContext, mainGoalIdMongo, &userGoal)
+	err := c.UserGoalRepository.CreateWeeklyUserGoal(timedContext, mainGoalIdMongo, &userGoal)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Could not register goal"})
 		return
@@ -133,7 +133,7 @@ func (c *UserGoalController) DeleteUserMainGoal(ctx *gin.Context) {
 	defer cancel()
 
 	// Register user
-	err := c.UserGoalService.DeleteUserMainGoal(timedContext, mongoGoalId)
+	err := c.UserGoalRepository.DeleteMainUserGoal(timedContext, mongoGoalId)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Could not get goal"})
 		return
@@ -168,7 +168,7 @@ func (c *UserGoalController) DeleteUserWeeklyGoal(ctx *gin.Context) {
 	defer cancel()
 
 	// Register user
-	err := c.UserGoalService.DeleteUserWeeklyGoal(timedContext, mongoGoalId, mongoWeeklyGoalId)
+	err := c.UserGoalRepository.DeleteWeeklyUserGoal(timedContext, mongoGoalId, mongoWeeklyGoalId)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Could not get goal"})
 		return
@@ -225,7 +225,7 @@ func (c *UserGoalController) GetIdealWeightRange(ctx *gin.Context) {
 	timedContext, cancel := config.GetTimedContext()
 	defer cancel()
 
-	user, err := c.UserService.UserRepo.GetUserProfileById(timedContext, mongoUserId)
+	user, err := c.UserRepository.GetUserProfileById(timedContext, mongoUserId)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "User not found"})
 		return
@@ -330,7 +330,7 @@ func (c *UserGoalController) GetGoalDuration(ctx *gin.Context) {
 	timedContext, cancel := config.GetTimedContext()
 	defer cancel()
 
-	user, err := c.UserService.UserRepo.GetUserProfileById(timedContext, mongoUserId)
+	user, err := c.UserRepository.GetUserProfileById(timedContext, mongoUserId)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "User not found"})
 		return
@@ -436,7 +436,7 @@ func (c *UserGoalController) GetTdee(ctx *gin.Context) {
 	timedContext, cancel := config.GetTimedContext()
 	defer cancel()
 
-	user, err := c.UserService.UserRepo.GetUserProfileById(timedContext, mongoUserId)
+	user, err := c.UserRepository.GetUserProfileById(timedContext, mongoUserId)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "User not found"})
 		return
@@ -564,7 +564,7 @@ func (c *UserGoalController) GetMacros(ctx *gin.Context) {
 	timedContext, cancel := config.GetTimedContext()
 	defer cancel()
 
-	user, err := c.UserService.UserRepo.GetUserProfileById(timedContext, mongoUserId)
+	user, err := c.UserRepository.GetUserProfileById(timedContext, mongoUserId)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "User not found"})
 		return

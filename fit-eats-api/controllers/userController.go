@@ -3,20 +3,21 @@ package controllers
 import (
 	"fit-eats-api/config"
 	"fit-eats-api/models"
-	"fit-eats-api/services"
+	"fit-eats-api/repositories"
 	"fit-eats-api/utils"
 
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 type UserController struct {
-	UserService *services.UserService
+	UserRepository *repositories.UserRepository
 }
 
-func NewUserController(service *services.UserService) *UserController {
-	return &UserController{UserService: service}
+func NewUserController(repository *repositories.UserRepository) *UserController {
+	return &UserController{UserRepository: repository}
 }
 
 func (c *UserController) Register(ctx *gin.Context) {
@@ -36,8 +37,15 @@ func (c *UserController) Register(ctx *gin.Context) {
 	timedContext, cancel := config.GetTimedContext()
 	defer cancel()
 
+	hashedPassword, err1 := utils.GeneratePasswordHashFromPlainText(user.Password)
+	if err1 != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate user password"})
+		return
+	}
+	user.Password = hashedPassword
+
 	// Register user
-	err := c.UserService.RegisterUser(timedContext, &user)
+	err := c.UserRepository.CreateUser(timedContext, &user)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Could not register user"})
 		return
@@ -57,13 +65,42 @@ func (c *UserController) Login(ctx *gin.Context) {
 	timedContext, cancel := config.GetTimedContext()
 	defer cancel()
 
-	user, token, refreshToken, err := c.UserService.Login(timedContext, email, password)
+	user, err := c.UserRepository.GetUserByEmail(timedContext, email)
 	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "user not found. Please register to continue"})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"accessToken": token, "refreshToken": refreshToken, "user": user})
+	if !utils.IsPasswordCorrect(user.Password, password) {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "invalid Credentials"})
+		return
+	}
+
+	accessToken, err := utils.GenerateAccessJwt(user)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "unable to generate access token"})
+		return
+	}
+
+	refreshToken, err := utils.GenerateRefreshJwt(user)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "unable to generate refresh token"})
+		return
+	}
+
+	err = c.UserRepository.UpdateUser(ctx, user.ID, bson.M{"refreshToken": refreshToken})
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "unable to save refresh token"})
+		return
+	}
+
+	user, err = c.UserRepository.GetUserProfileById(ctx, user.ID)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "unable to get user token"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"accessToken": accessToken, "refreshToken": refreshToken, "user": user})
 }
 
 func (c *UserController) RequestAccessToken(ctx *gin.Context) {
@@ -77,9 +114,25 @@ func (c *UserController) RequestAccessToken(ctx *gin.Context) {
 	timedContext, cancel := config.GetTimedContext()
 	defer cancel()
 
-	token, err := c.UserService.RequestAccessToken(timedContext, emailId, refreshToken)
+	user, err := c.UserRepository.GetUserByEmail(timedContext, emailId)
 	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "user not found"})
+		return
+	}
+
+	if !utils.IsRefreshTokenValid(refreshToken) {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "refresh token invalid"})
+		return
+	}
+
+	if user.RefreshToken != refreshToken {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
+		return
+	}
+
+	token, err := utils.GenerateAccessJwt(user)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "unable to generate access toke"})
 		return
 	}
 
@@ -96,9 +149,14 @@ func (c *UserController) LogoutUser(ctx *gin.Context) {
 	timedContext, cancel := config.GetTimedContext()
 	defer cancel()
 
-	err := c.UserService.RevokeAccessToken(timedContext, emailId)
+	user, err := c.UserRepository.GetUserByEmail(timedContext, emailId)
 	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "user not found"})
+		return
+	}
+	err = c.UserRepository.UpdateUser(timedContext, user.ID, bson.M{"refreshToken": ""})
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "could not revoke"})
 		return
 	}
 
@@ -115,8 +173,34 @@ func (c *UserController) UpdateUser(ctx *gin.Context) {
 	timedContext, cancel := config.GetTimedContext()
 	defer cancel()
 
+	update := bson.M{}
+
+	if user.Name != "" {
+		update["name"] = user.Name
+	}
+	if user.Age != "" {
+		update["age"] = user.Age
+	}
+	if user.Sex != "" {
+		update["sex"] = user.Sex
+	}
+	if user.HeightInCm != 0 {
+		update["heightInCm"] = user.HeightInCm
+	}
+	if user.Country != "" {
+		update["country"] = user.Country
+	}
+	if user.DietPreferences != nil {
+		update["dietPreferences"] = user.DietPreferences
+	}
+
+	if len(update) == 0 {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Could not update user"})
+		return // Nothing to update
+	}
+
 	// Register user
-	err := c.UserService.UpdateUser(timedContext, &user)
+	err := c.UserRepository.UpdateUser(timedContext, user.ID, update)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Could not update user"})
 		return
@@ -135,8 +219,8 @@ func (c *UserController) GetUser(ctx *gin.Context) {
 	timedContext, cancel := config.GetTimedContext()
 	defer cancel()
 
-	// Register user
-	user, err := c.UserService.GetUser(timedContext, emailId)
+	// Get user
+	user, err := c.UserRepository.GetUserProfileByEmailId(timedContext, emailId)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Could not get user"})
 		return

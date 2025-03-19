@@ -8,7 +8,6 @@ import (
 	"fit-eats-api/controllers"
 	"fit-eats-api/repositories"
 	"fit-eats-api/routes"
-	"fit-eats-api/services"
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,16 +19,16 @@ Repository: Deals directly with data persistence (e.g., MongoDB). It abstracts a
 
 Data Flow:
 
-+----------+     +-----------+     +----------+     +------------+
-| HTTP     | --> | Controller| --> | Service  | --> | Repository | --> MongoDB
-| Request  |     |           |     |          |     |            |
-+----------+     +-----------+     +----------+     +------------+
-                                                      ^
-                                                      |
-+----------+     +-----------+     +----------+     +------------+
-| HTTP     | <-- | Controller| <-- | Service  | <-- | Repository | <-- MongoDB
-| Response |     |           |     |          |     |            |
-+----------+     +-----------+     +----------+     +------------+
++----------+     +-----------+     +------------+
+| HTTP     | --> | Controller| --> | Repository | --> MongoDB
+| Request  |     |           |     |            |
++----------+     +-----------+     +------------+
+                                         ^
+                                         |
++----------+     +-----------+     +------------+
+| HTTP     | <-- | Controller| <-- | Repository | <-- MongoDB
+| Response |     |           |     |            |
++----------+     +-----------+     +------------+
 
 */
 
@@ -44,13 +43,11 @@ func main() {
 
 	// Initialize repositories, services, and controllers
 	userRepo := repositories.NewUserRepository(db)
-	userService := services.NewUserService(userRepo)
-	userController := controllers.NewUserController(userService)
+	userController := controllers.NewUserController(userRepo)
 
 	// Initialize repositories, services, and controllers
 	userGoalRepo := repositories.NewUserGoalRepository(db)
-	userGoalService := services.NewUserGoalService(userGoalRepo)
-	userGoalController := controllers.NewUserGoalController(userGoalService, userService)
+	userGoalController := controllers.NewUserGoalController(userRepo, userGoalRepo)
 
 	// Set up Gin router
 	router := gin.Default()
