@@ -41,3 +41,12 @@ func SetupUserGoalRoutes(router *gin.Engine, userGoalController *controllers.Use
 		protected.DELETE("/deleteWeeklyGoal", userGoalController.DeleteUserWeeklyGoal)
 	}
 }
+
+func SetupMealRoutes(router *gin.Engine, userGoalController *controllers.UserGoalController) {
+	protected := router.Group("/api")
+	protected.Use(middleware.AuthMiddleware()) // Apply JWT auth middleware
+	{
+		//protected.POST("/createMealPlan", userGoalController.RegisterUserGoal)
+		//protected.POST("/editMealPlan", userGoalController.RegisterWeeklyUserGoal)
+	}
+}

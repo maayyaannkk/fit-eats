@@ -1,6 +1,3 @@
-//TODO create new handlers for goal events (add new goal, list goals, edit goal, start end date).
-
-//TODO create schema for recipe.
 //TODO create API handler for recipes, creation, changes though prompt. take output as daily, and weekly after user confirmation.
 //TODO create prompt to get recipe details from llm.
 

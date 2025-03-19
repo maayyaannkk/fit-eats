@@ -171,8 +171,8 @@ fun AddWeeklyGoalScreen(navController: NavHostController, mainGoalModel: MainGoa
                             add(Calendar.WEEK_OF_YEAR, 1)
                         }.time
                     },
-                    minDate = DateFilters.oneMonth().first,
-                    maxDate = DateFilters.oneMonth().second,
+                    minDate = DateFilters.today().first,
+                    maxDate = DateFilters.today().second,
                     isDisabled = selectedOption.value == null
                 )
 
