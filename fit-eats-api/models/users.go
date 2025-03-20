@@ -11,7 +11,7 @@ type User struct {
 	Age             string             `bson:"age" json:"age,omitempty"`
 	Sex             string             `bson:"sex" json:"sex,omitempty"`
 	Country         string             `bson:"country" json:"country,omitempty"`
-	DietPreferences []string           `bson:"dietPreferences" json:"dietPreferences,omitempty"`
+	DietPreferences string             `bson:"dietPreferences" json:"dietPreferences,omitempty"`
 	RefreshToken    string             `bson:"refreshToken" json:"refreshToken,omitempty"`
 }
 

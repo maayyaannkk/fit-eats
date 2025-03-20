@@ -37,16 +37,17 @@ func SetupUserGoalRoutes(router *gin.Engine, userGoalController *controllers.Use
 		protected.POST("/registerWeeklyGoal", userGoalController.RegisterWeeklyUserGoal)
 
 		protected.GET("/getGoals", userGoalController.GetUserGoals)
+		protected.GET("/getActiveGoal", userGoalController.GetActiveUserGoal)
 		protected.DELETE("/deleteMainGoal", userGoalController.DeleteUserMainGoal)
 		protected.DELETE("/deleteWeeklyGoal", userGoalController.DeleteUserWeeklyGoal)
 	}
 }
 
-func SetupMealRoutes(router *gin.Engine, userGoalController *controllers.UserGoalController) {
+func SetupMealRoutes(router *gin.Engine, mealController *controllers.MealController) {
 	protected := router.Group("/api")
 	protected.Use(middleware.AuthMiddleware()) // Apply JWT auth middleware
 	{
-		//protected.POST("/createMealPlan", userGoalController.RegisterUserGoal)
-		//protected.POST("/editMealPlan", userGoalController.RegisterWeeklyUserGoal)
+		protected.POST("/createMealPlan", mealController.CreateWeeklyMealPlan)
+		protected.GET("/getMealPlan", mealController.GetWeeklyMealPlan)
 	}
 }

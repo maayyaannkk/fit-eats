@@ -41,13 +41,17 @@ func main() {
 	db := client.Database(cfg.Database)
 	fmt.Println("Connected to MongoDB:", cfg.Database)
 
-	// Initialize repositories, services, and controllers
+	// Initialize repositories, and controllers
 	userRepo := repositories.NewUserRepository(db)
 	userController := controllers.NewUserController(userRepo)
 
-	// Initialize repositories, services, and controllers
+	// Initialize repositories, and controllers
 	userGoalRepo := repositories.NewUserGoalRepository(db)
 	userGoalController := controllers.NewUserGoalController(userRepo, userGoalRepo)
+
+	// Initialize repositories, and controllers
+	mealRepo := repositories.NewMealRepository(db)
+	mealController := controllers.NewMealController(userRepo, userGoalRepo, mealRepo)
 
 	// Set up Gin router
 	router := gin.Default()
@@ -55,6 +59,7 @@ func main() {
 	// Define API routes
 	routes.SetupUserRoutes(router, userController)
 	routes.SetupUserGoalRoutes(router, userGoalController)
+	routes.SetupMealRoutes(router, mealController)
 
 	// Start the server
 	fmt.Println("Server is running on port " + cfg.Port)

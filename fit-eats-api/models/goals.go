@@ -14,8 +14,8 @@ import (
 type GoalType string
 
 const (
-	Weekly  GoalType = "Fat loss"
-	Monthly GoalType = "Muscle gain"
+	FAT_LOSS    GoalType = "Fat loss"
+	MUSCLE_GAIN GoalType = "Muscle gain"
 )
 
 type Goal struct {

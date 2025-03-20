@@ -1,6 +1,10 @@
 package models
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+import (
+	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
 
 type MealPlan struct {
 	ID primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
@@ -8,6 +12,13 @@ type MealPlan struct {
 	UserId       primitive.ObjectID `bson:"userId" json:"userId"`
 	MainGoalId   primitive.ObjectID `bson:"mainGoalId" json:"mainGoalId"`
 	WeeklyGoalId primitive.ObjectID `bson:"weeklyGoalId" json:"weeklyGoalId"`
+
+	DayMeals []DayMeal `bson:"dayMeals" json:"dayMeals"`
+}
+
+type DayMeal struct {
+	ID   primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
+	Date time.Time          `bson:"date" json:"date"`
 
 	Meals []Meal `bson:"meals" json:"meals"`
 }
@@ -23,6 +34,7 @@ type Meal struct {
 	Time        string             `bson:"time" json:"time"`
 	Ingredients []Ingredient       `bson:"ingredients" json:"ingredients"`
 	RecipeSteps []string           `bson:"recipe_steps" json:"recipe_steps"`
+	IsConsumed  bool               `bson:"isConsumed,omitempty" json:"isConsumed,omitempty"`
 }
 
 type Ingredient struct {

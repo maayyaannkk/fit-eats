@@ -6,7 +6,6 @@ import (
 
 	"fmt"
 	"log"
-	"strings"
 
 	"github.com/google/generative-ai-go/genai"
 	"google.golang.org/api/option"
@@ -330,75 +329,73 @@ func GetMealModel() *genai.GenerativeModel {
 		loadOnceMeal.Do(func() {
 			temp := getBaseModel()
 			temp.ResponseSchema = &genai.Schema{
-				Type: genai.TypeObject,
+				Type:     genai.TypeObject,
+				Required: []string{"mealPlans"},
 				Properties: map[string]*genai.Schema{
-					"meals": {
+					"mealPlans": {
 						Type: genai.TypeArray,
 						Items: &genai.Schema{
-							Type: genai.TypeObject,
+							Type:     genai.TypeObject,
+							Required: []string{"dayOfWeek", "meals"},
 							Properties: map[string]*genai.Schema{
-								"time": {
+								"dayOfWeek": {
 									Type: genai.TypeString,
+									Enum: []string{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"},
 								},
-								"name": {
-									Type: genai.TypeString,
-								},
-								"description": {
-									Type: genai.TypeString,
-								},
-								"ingredients": {
+								"meals": {
 									Type: genai.TypeArray,
 									Items: &genai.Schema{
-										Type: genai.TypeObject,
+										Type:     genai.TypeObject,
+										Required: []string{"time", "name", "description", "ingredients", "recipe_steps", "calories", "protein", "fat", "carbs"},
 										Properties: map[string]*genai.Schema{
+											"time": {
+												Type: genai.TypeString,
+											},
 											"name": {
 												Type: genai.TypeString,
 											},
-											"quantity": {
+											"description": {
 												Type: genai.TypeString,
 											},
-										},
-										Required: []string{
-											"name",
-											"quantity",
+											"ingredients": {
+												Type: genai.TypeArray,
+												Items: &genai.Schema{
+													Type:     genai.TypeObject,
+													Required: []string{"name", "quantity"},
+													Properties: map[string]*genai.Schema{
+														"name": {
+															Type: genai.TypeString,
+														},
+														"quantity": {
+															Type: genai.TypeString,
+														},
+													},
+												},
+											},
+											"recipe_steps": {
+												Type: genai.TypeArray,
+												Items: &genai.Schema{
+													Type: genai.TypeString,
+												},
+											},
+											"calories": {
+												Type: genai.TypeInteger,
+											},
+											"protein": {
+												Type: genai.TypeInteger,
+											},
+											"fat": {
+												Type: genai.TypeInteger,
+											},
+											"carbs": {
+												Type: genai.TypeInteger,
+											},
 										},
 									},
 								},
-								"recipe_steps": {
-									Type: genai.TypeArray,
-									Items: &genai.Schema{
-										Type: genai.TypeString,
-									},
-								},
-								"calories": {
-									Type: genai.TypeInteger,
-								},
-								"protein": {
-									Type: genai.TypeInteger,
-								},
-								"fat": {
-									Type: genai.TypeInteger,
-								},
-								"carbs": {
-									Type: genai.TypeInteger,
-								},
-							},
-							Required: []string{
-								"time",
-								"name",
-								"description",
-								"ingredients",
-								"recipe_steps",
-								"calories",
-								"protein",
-								"fat",
-								"carbs",
 							},
 						},
 					},
-				},
-				Required: []string{
-					"meals",
 				},
 			}
 			mealModel = &temp
@@ -461,22 +458,23 @@ func GetDailyMacroPrompt(user models.User, currentWeightInKg float32, currentBod
 }
 
 func GetSingleMealPrompt(user models.User,
-	currentWeightInKg string, currentBodyFatPercentage string,
-	goalWeightInKg string, goalBodyFatPercentage string,
+	currentWeightInKg float32, currentBodyFatPercentage float32,
+	goalWeightInKg float32, goalBodyFatPercentage float32,
 	maxCalories int32, maxFat int32, maxCarb int32,
 	maxProtein int32, goalType string) string {
 	bodyFatString := ""
-	if currentBodyFatPercentage != "" {
-		bodyFatString = fmt.Sprintf("with approx %s%% body fat", currentBodyFatPercentage)
+	if currentBodyFatPercentage != 0 {
+		bodyFatString = fmt.Sprintf("with approx %.1f%% body fat", currentBodyFatPercentage)
 	}
 
-	return fmt.Sprintf("I am %s kg %s, %s year old %s, and %.1f cm in height."+
-		" My goal is %s, with target weight as %s kg and %s%% body fat."+
+	return fmt.Sprintf("I am %.1f kg %s, %s year old %s, and %.1f cm in height."+
+		" My goal is %s, with target weight as %.1f kg and %.1f%% body fat."+
 		" For the next week I will be on a %d calorie per day diet with %d grams protein %d grams fat and %d grams carbs."+
 		" I am from %s and prefer %s diet."+
-		" Suggest a meal plan for a single day including time frames for each meal."+
+		" Include meals that are easily available in my country, and keep my dietary preference in line with this."+
+		" Suggest a meal plan for a the whole week including time frames for each meal."+
 		" Make sure to include calories and macros."+
 		" Make sure the ingredients are generic and not specific to a brand or country, also make sure to include raw ingredients rather than processed or store bought finished products."+
 		" for eg. ingredient should not include 'chicken tikka masala' instead break it down into raw ingredients and include in recipe steps.",
-		currentWeightInKg, bodyFatString, user.Age, user.Sex, user.HeightInCm, goalType, goalWeightInKg, goalBodyFatPercentage, maxCalories, maxProtein, maxFat, maxCarb, user.Country, strings.Join(user.DietPreferences, ", "))
+		currentWeightInKg, bodyFatString, user.Age, user.Sex, user.HeightInCm, goalType, goalWeightInKg, goalBodyFatPercentage, maxCalories, maxProtein, maxFat, maxCarb, user.Country, user.DietPreferences)
 }

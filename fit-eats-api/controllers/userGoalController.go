@@ -24,6 +24,30 @@ func NewUserGoalController(userRepository *repositories.UserRepository, userGoal
 	return &UserGoalController{UserRepository: userRepository, UserGoalRepository: userGoalRepository}
 }
 
+func (c *UserGoalController) GetActiveUserGoal(ctx *gin.Context) {
+	userId, error := ctx.GetQuery("userId")
+	if !error {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format"})
+		return
+	}
+	mongoUserId, error1 := primitive.ObjectIDFromHex(userId)
+	if error1 != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format"})
+		return
+	}
+
+	timedContext, cancel := config.GetTimedContext()
+	defer cancel()
+
+	mainGoal, err := c.UserGoalRepository.GetUserActiveGoalByUserId(timedContext, mongoUserId)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Could not get main goal"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, mainGoal)
+}
+
 func (c *UserGoalController) GetUserGoals(ctx *gin.Context) {
 	userId, error := ctx.GetQuery("userId")
 	if !error {

@@ -190,7 +190,7 @@ func (c *UserController) UpdateUser(ctx *gin.Context) {
 	if user.Country != "" {
 		update["country"] = user.Country
 	}
-	if user.DietPreferences != nil {
+	if user.DietPreferences != "" {
 		update["dietPreferences"] = user.DietPreferences
 	}
 

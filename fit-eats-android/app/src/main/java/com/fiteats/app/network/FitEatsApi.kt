@@ -5,6 +5,7 @@ import com.fiteats.app.models.GoalDuration
 import com.fiteats.app.models.IdealWeight
 import com.fiteats.app.models.MacroGoal
 import com.fiteats.app.models.MainGoalModel
+import com.fiteats.app.models.MealPlan
 import com.fiteats.app.models.UserModel
 import com.fiteats.app.models.WeeklyGoalModel
 import com.google.gson.JsonObject
@@ -66,8 +67,20 @@ interface FitEatsApi {
     @GET("getGoals")
     suspend fun getGoals(@Query("userId") userId: String): Response<JsonObject>
 
+    @GET("getActiveGoal")
+    suspend fun getActiveGoal(@Query("userId") userId: String): Response<MainGoalModel>
+
     @DELETE("goals")
     suspend fun deleteGoal(@Query("goalId") goalId: String): Response<JsonObject>
+    //endregion
+
+    //region meal Plan
+    @GET("getMealPlan")
+    suspend fun getMealPlan(
+        @Query("userId") userId: String,
+        @Query("mainGoalId") mainGoalId: String,
+        @Query("weeklyGoalId") weeklyGoalId: String
+    ): Response<MealPlan>
     //endregion
 
     //region AI routes
@@ -109,5 +122,12 @@ interface FitEatsApi {
         @Query("currentTdee") currentTdee: Int,
         @Query("weightChange") weightChange: Float,
     ): Response<MacroGoal>
+
+    @POST("createMealPlan")
+    suspend fun createMealPlan(
+        @Query("userId") userId: String,
+        @Query("mainGoalId") mainGoalId: String,
+        @Query("weeklyGoalId") weeklyGoalId: String
+    ): Response<MealPlan>
     //endregion
 }
