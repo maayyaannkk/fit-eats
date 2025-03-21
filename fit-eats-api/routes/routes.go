@@ -47,7 +47,8 @@ func SetupMealRoutes(router *gin.Engine, mealController *controllers.MealControl
 	protected := router.Group("/api")
 	protected.Use(middleware.AuthMiddleware()) // Apply JWT auth middleware
 	{
-		protected.POST("/createMealPlan", mealController.CreateWeeklyMealPlan)
 		protected.GET("/getMealPlan", mealController.GetWeeklyMealPlan)
+		protected.POST("/createMealPlan", mealController.CreateWeeklyMealPlan)
+		protected.POST("/customizeMealPlan", mealController.CustomizeDayMealPlan)
 	}
 }

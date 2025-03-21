@@ -43,7 +43,9 @@ fun MealScreen() {
             MacroCard(userGoal!!.weeklyGoals!![0])
 
             if (mealPlan != null) {
-                MealPlanList(mealPlan!!)
+                MealPlanList(mealPlan!!) { dayMeal, userPrompt ->
+                    viewModel.customizeMealPlan(mealPlan!!.id!!, dayMeal.id!!, userPrompt)
+                }
             } else {
                 Button(onClick = {
                     viewModel.createMealPlan(userGoal!!.id!!, userGoal!!.weeklyGoals!![0].id!!)

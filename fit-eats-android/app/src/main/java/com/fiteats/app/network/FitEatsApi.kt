@@ -129,5 +129,12 @@ interface FitEatsApi {
         @Query("mainGoalId") mainGoalId: String,
         @Query("weeklyGoalId") weeklyGoalId: String
     ): Response<MealPlan>
+
+    @POST("customizeMealPlan")
+    suspend fun customizeMealPlan(
+        @Query("mealPlanId") mealPlanId: String,
+        @Query("dayMealId") dayMealId: String,
+        @Query("userPrompt") userPrompt: String
+    ): Response<JsonObject>
     //endregion
 }

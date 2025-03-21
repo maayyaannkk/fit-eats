@@ -1,8 +1,3 @@
-//TODO create API handler for recipes, creation, changes though prompt. take output as daily, and weekly after user confirmation.
-//TODO create prompt to get recipe details from llm.
-
-// TODO integate with some AI API, to fetch and save recipes.
-
 package models
 
 import (

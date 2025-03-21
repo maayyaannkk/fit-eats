@@ -114,4 +114,38 @@ class MealPlanViewModel(application: Application) : AndroidViewModel(application
             }
         }
     }
+
+    fun customizeMealPlan(mealPlanId: String, dayMealId: String, userPrompt: String) {
+        viewModelScope.launch {
+            try {
+                val response = api.customizeMealPlan(
+                    mealPlanId,
+                    dayMealId,
+                    userPrompt
+                )
+                if (response.isSuccessful) {
+                    val mealPlanResponse = response.body()!!
+                    if (mealPlanResponse.has("mainGoalId") && mealPlanResponse.has("weeklyGoalId"))
+                        getMealPlan(
+                            mealPlanResponse.get("mainGoalId").asString,
+                            mealPlanResponse.get("weeklyGoalId").asString
+                        )
+                    _apiError.value = null
+                } else {
+                    val errorJson = response.errorBody()?.string()
+                    val errorMessage = try {
+                        val jsonObject = JsonParser.parseString(errorJson).asJsonObject
+                        jsonObject.get("error")?.asString ?: "Failed to get goals"
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        "Failed to get goals"
+                    }
+                    _apiError.value = errorMessage
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _apiError.value = "Failed to get goals: ${e.message}"
+            }
+        }
+    }
 }

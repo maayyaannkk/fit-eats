@@ -87,3 +87,46 @@ func ParseMealPlanResponse(userId, mainGoalId, weeklyGoalId primitive.ObjectID, 
 
 	return mealPlan
 }
+
+func ParseSingleMealPlanResponse(response map[string]any) models.DayMeal {
+	var dayMeal models.DayMeal
+
+	if meals, ok := response["meals"].([]any); ok {
+		for _, mealData := range meals {
+			if mealMap, ok := mealData.(map[string]any); ok {
+				meal := models.Meal{
+					ID:          primitive.NewObjectID(),
+					Name:        mealMap["name"].(string),
+					Description: mealMap["description"].(string),
+					Calories:    int(mealMap["calories"].(float64)),
+					Carbs:       int(mealMap["carbs"].(float64)),
+					Protein:     int(mealMap["protein"].(float64)),
+					Fat:         int(mealMap["fat"].(float64)),
+					Time:        mealMap["time"].(string),
+				}
+
+				// Parse ingredients
+				if ingredients, ok := mealMap["ingredients"].([]any); ok {
+					for _, ing := range ingredients {
+						if ingMap, ok := ing.(map[string]any); ok {
+							meal.Ingredients = append(meal.Ingredients, models.Ingredient{
+								Name:     ingMap["name"].(string),
+								Quantity: ingMap["quantity"].(string),
+							})
+						}
+					}
+				}
+
+				// Parse recipe steps
+				if steps, ok := mealMap["recipe_steps"].([]any); ok {
+					for _, step := range steps {
+						meal.RecipeSteps = append(meal.RecipeSteps, step.(string))
+					}
+				}
+
+				dayMeal.Meals = append(dayMeal.Meals, meal)
+			}
+		}
+	}
+	return dayMeal
+}

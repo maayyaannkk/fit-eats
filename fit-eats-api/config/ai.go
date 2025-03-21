@@ -16,12 +16,14 @@ var goalDurationModel *genai.GenerativeModel
 var tdeeModel *genai.GenerativeModel
 var macroModel *genai.GenerativeModel
 var mealModel *genai.GenerativeModel
+var singleMealModel *genai.GenerativeModel
 
 var loadOnceWeightRange sync.Once
 var loadOnceGoalDuration sync.Once
 var loadOnceTdee sync.Once
 var loadOnceMacro sync.Once
 var loadOnceMeal sync.Once
+var loadOnceSingleMeal sync.Once
 
 func getBaseModel() genai.GenerativeModel {
 	ctx, cancel := GetTimedContext()
@@ -404,6 +406,73 @@ func GetMealModel() *genai.GenerativeModel {
 	return mealModel
 }
 
+func GetSingleMealModel() *genai.GenerativeModel {
+	if singleMealModel == nil {
+		loadOnceSingleMeal.Do(func() {
+			temp := getBaseModel()
+			temp.ResponseSchema = &genai.Schema{
+				Type:     genai.TypeObject,
+				Required: []string{"meals"},
+				Properties: map[string]*genai.Schema{
+					"meals": {
+						Type: genai.TypeArray,
+						Items: &genai.Schema{
+							Type:     genai.TypeObject,
+							Required: []string{"time", "name", "description", "ingredients", "recipe_steps", "calories", "protein", "fat", "carbs"},
+							Properties: map[string]*genai.Schema{
+								"time": {
+									Type: genai.TypeString,
+								},
+								"name": {
+									Type: genai.TypeString,
+								},
+								"description": {
+									Type: genai.TypeString,
+								},
+								"ingredients": {
+									Type: genai.TypeArray,
+									Items: &genai.Schema{
+										Type:     genai.TypeObject,
+										Required: []string{"name", "quantity"},
+										Properties: map[string]*genai.Schema{
+											"name": {
+												Type: genai.TypeString,
+											},
+											"quantity": {
+												Type: genai.TypeString,
+											},
+										},
+									},
+								},
+								"recipe_steps": {
+									Type: genai.TypeArray,
+									Items: &genai.Schema{
+										Type: genai.TypeString,
+									},
+								},
+								"calories": {
+									Type: genai.TypeInteger,
+								},
+								"protein": {
+									Type: genai.TypeInteger,
+								},
+								"fat": {
+									Type: genai.TypeInteger,
+								},
+								"carbs": {
+									Type: genai.TypeInteger,
+								},
+							},
+						},
+					},
+				},
+			}
+			singleMealModel = &temp
+		})
+	}
+	return singleMealModel
+}
+
 func GetWeightRangePrompt(user models.User, currentWeightInKg float32, currentBodyFatPercentage float32) string {
 	bodyFatString := ""
 	if currentBodyFatPercentage != 0 {
@@ -457,7 +526,8 @@ func GetDailyMacroPrompt(user models.User, currentWeightInKg float32, currentBod
 		currentWeightInKg, bodyFatString, user.Age, user.Sex, user.HeightInCm, goalType, goalWeightInKg, goalBodyFatPercentage, currentBmr, currentTdee, weightChange)
 }
 
-func GetSingleMealPrompt(user models.User,
+// TODO add a user prompt for preferences
+func GetWeeklyMealPrompt(user models.User,
 	currentWeightInKg float32, currentBodyFatPercentage float32,
 	goalWeightInKg float32, goalBodyFatPercentage float32,
 	maxCalories int32, maxFat int32, maxCarb int32,
@@ -474,7 +544,35 @@ func GetSingleMealPrompt(user models.User,
 		" Include meals that are easily available in my country, and keep my dietary preference in line with this."+
 		" Suggest a meal plan for a the whole week including time frames for each meal."+
 		" Make sure to include calories and macros."+
+		" Time should always be in 24hours format for eg. 1830 for 6:30 pm. "+
 		" Make sure the ingredients are generic and not specific to a brand or country, also make sure to include raw ingredients rather than processed or store bought finished products."+
 		" for eg. ingredient should not include 'chicken tikka masala' instead break it down into raw ingredients and include in recipe steps.",
 		currentWeightInKg, bodyFatString, user.Age, user.Sex, user.HeightInCm, goalType, goalWeightInKg, goalBodyFatPercentage, maxCalories, maxProtein, maxFat, maxCarb, user.Country, user.DietPreferences)
+}
+
+func GetSingleMealEditPrompt(user models.User, mealsAsJsonString string, prompt string,
+	currentWeightInKg float32, currentBodyFatPercentage float32,
+	goalWeightInKg float32, goalBodyFatPercentage float32,
+	maxCalories int32, maxFat int32, maxCarb int32,
+	maxProtein int32, goalType string) string {
+	bodyFatString := ""
+	if currentBodyFatPercentage != 0 {
+		bodyFatString = fmt.Sprintf("with approx %.1f%% body fat", currentBodyFatPercentage)
+	}
+
+	return fmt.Sprintf("I am %.1f kg %s, %s year old %s, and %.1f cm in height."+
+		" My goal is %s, with target weight as %.1f kg and %.1f%% body fat."+
+		" For the next week I will be on a %d calorie per day diet with %d grams protein %d grams fat and %d grams carbs."+
+		" I am from %s and prefer %s diet."+
+		" Include meals that are easily available in my country, and keep my dietary preference in line with this."+
+		" Suggest changes to a single day meal plan. I will attach the meal plan and also a prompt with the requested changes."+
+		" Make sure to only include items from the prompt that are relevant to meal plan and exclude anything else."+
+		" Make sure to include calories and macros."+
+		" Time should always be in 24hours format for eg. 1830 for 6:30 pm. "+
+		" If you don't find anything relevant in the prompt send the same meal back."+
+		" Make sure the ingredients are generic and not specific to a brand or country, also make sure to include raw ingredients rather than processed or store bought finished products."+
+		" for eg. ingredient should not include 'chicken tikka masala' instead break it down into raw ingredients and include in recipe steps."+
+		" Meals: %s."+
+		" Prompt: %s.",
+		currentWeightInKg, bodyFatString, user.Age, user.Sex, user.HeightInCm, goalType, goalWeightInKg, goalBodyFatPercentage, maxCalories, maxProtein, maxFat, maxCarb, user.Country, user.DietPreferences, mealsAsJsonString, prompt)
 }
