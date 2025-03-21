@@ -1,216 +1,228 @@
 package com.fiteats.app.ui.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CalendarToday
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.fiteats.app.models.GoalType
 import com.fiteats.app.models.MainGoalModel
-import java.text.SimpleDateFormat
-import java.util.*
+import com.fiteats.app.models.WeeklyGoalModel
+import com.fiteats.app.utils.toDDMMM
+import com.fiteats.app.utils.toDDMMMYYYY
+import java.util.Date
 import java.util.concurrent.TimeUnit
 
 @Composable
-fun MainGoalCard(goal: MainGoalModel) {
+fun MainGoalCard(mainGoal: MainGoalModel) {
     val currentDate = Date()
-    val startDate = goal.goalStartDate ?: currentDate
-    val endDate = goal.goalEndDate ?: currentDate
+    val startDate = mainGoal.goalStartDate ?: currentDate
+    val endDate = mainGoal.goalEndDate ?: currentDate
 
     val daysPassed = TimeUnit.DAYS.convert(currentDate.time - startDate.time, TimeUnit.MILLISECONDS)
     val daysRemaining =
         TimeUnit.DAYS.convert(endDate.time - currentDate.time, TimeUnit.MILLISECONDS)
 
-    val dateFormatter = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
-    val startDateFormatted = dateFormatter.format(startDate)
-    val endDateFormatted = dateFormatter.format(endDate)
-
-    Card(
+    Column(
         modifier = Modifier
-            .fillMaxWidth(),
-        shape = RoundedCornerShape(0.dp),
-        colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 5.dp)
+            .fillMaxSize()
+            .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+        // Current Goal Card
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface),
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.FitnessCenter,
-                    contentDescription = "Goal Icon",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(24.dp)
-                )
-                goal.goalType?.let {
+            Column(modifier = Modifier.padding(16.dp)) {
+                mainGoal.goalType?.let {
                     Text(
                         text = it.value + " Journey",
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.onSurface,
+                        fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
-            }
-            LinearProgressIndicator(
-                progress = {
-                    (daysPassed.toFloat() / (daysPassed + daysRemaining).toFloat())
-                        .coerceIn(0f, 1f)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(8.dp)
-                    .clip(RoundedCornerShape(4.dp)),
-                color = MaterialTheme.colorScheme.primary,
-                trackColor = MaterialTheme.colorScheme.surfaceVariant
-            )
+                Spacer(modifier = Modifier.height(12.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                DateInfo(label = "Start Date", date = startDateFormatted)
-                DateInfo(label = "End Date", date = endDateFormatted)
-            }
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text(
+                            text = "Start Weight",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Text(text = "${mainGoal.startWeightInKg} kg", fontSize = 16.sp)
+                    }
+                    Column(horizontalAlignment = Alignment.End) {
+                        Text(
+                            text = "Target Weight",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Text(text = "${mainGoal.targetWeightInKg} kg", fontSize = 16.sp)
+                    }
+                }
+                Spacer(modifier = Modifier.height(10.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                GoalInfoItem(
-                    label = "Start Weight",
-                    value = "${goal.startWeightInKg ?: "-"} kg",
-                    icon = Icons.Filled.CheckCircle
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text(
+                            text = "Start Body Fat",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Text(text = "${mainGoal.startFatPercentage}%", fontSize = 16.sp)
+                    }
+                    Column(horizontalAlignment = Alignment.End) {
+                        Text(
+                            text = "Target Body Fat",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Text(text = "${mainGoal.targetFatPercentage}%", fontSize = 16.sp)
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                LinearProgressIndicator(
+                    progress = {
+                        (daysPassed.toFloat() / (daysPassed + daysRemaining).toFloat())
+                            .coerceIn(0f, 1f)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(8.dp)
+                        .clip(RoundedCornerShape(4.dp)),
+                    color = MaterialTheme.colorScheme.primary,
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant
                 )
-                GoalInfoItem(
-                    label = "Target Weight",
-                    value = "${goal.targetWeightInKg ?: "-"} kg",
-                    icon = Icons.Filled.CheckCircle
-                )
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                GoalInfoItem(
-                    label = "Start Fat %",
-                    value = "${goal.startFatPercentage ?: "-"}%",
-                    icon = Icons.Filled.CheckCircle
-                )
-                GoalInfoItem(
-                    label = "Target Fat %",
-                    value = "${goal.targetFatPercentage ?: "-"}%",
-                    icon = Icons.Filled.CheckCircle
-                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text(
+                            text = "Started: ${mainGoal.goalStartDate?.toDDMMMYYYY()}",
+                            fontSize = 14.sp
+                        )
+                    }
+                    Column(horizontalAlignment = Alignment.End) {
+                        Text(
+                            text = "Ends: ${mainGoal.goalEndDate?.toDDMMMYYYY()}",
+                            fontSize = 14.sp
+                        )
+                    }
+                }
             }
         }
-    }
 
-    if (!goal.weeklyGoals.isNullOrEmpty()) {
-        Spacer(modifier = Modifier.height(8.dp))
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(goal.weeklyGoals) {
-                WeeklyGoalCard(weeklyGoal = it)
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Weekly Goal Card
+        mainGoal.weeklyGoals?.firstOrNull()?.let { weeklyGoal ->
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface),
+                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text(
+                                text = "Weekly Goal",
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                        Column(horizontalAlignment = Alignment.End) {
+                            Box(
+                                modifier = Modifier
+                                    .background(
+                                        color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.15f),
+                                        shape = RoundedCornerShape(50) // Circular background
+                                    )
+                                    .padding(
+                                        horizontal = 8.dp,
+                                        vertical = 2.dp
+                                    ) // Adjust padding for circular effect
+                            ) {
+                                Text(
+                                    text = "In Progress",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.tertiary
+                                )
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        GoalBox("Calories", "${weeklyGoal.targetDailyCalories}", Color(0xFFE3EFFF))
+                        GoalBox(
+                            "Protein",
+                            "${weeklyGoal.targetDailyMacrosProtein}g",
+                            Color(0xFFE3FFEB)
+                        )
+                        GoalBox("Carbs", "${weeklyGoal.targetDailyMacrosCarbs}g", Color(0xFFFFF5E3))
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = "Week of ${weeklyGoal.startDate?.toDDMMM()} - ${weeklyGoal.endDate?.toDDMMM()}",
+                        fontSize = 14.sp
+                    )
+
+                }
             }
         }
     }
 }
 
 @Composable
-fun DateInfo(
-    label: String,
-    date: String,
-    color: Color = MaterialTheme.colorScheme.onSurfaceVariant
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
+fun GoalBox(label: String, value: String, backgroundColor: Color) {
+    Box(
+        modifier = Modifier
+            .background(backgroundColor, shape = RoundedCornerShape(8.dp))
+            .padding(horizontal = 12.dp, vertical = 8.dp)
     ) {
-        Icon(
-            imageVector = Icons.Filled.CalendarToday,
-            contentDescription = label,
-            tint = color,
-            modifier = Modifier.size(16.dp)
-        )
         Column {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Text(
-                text = date,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Medium,
-                color = color
-            )
+            Text(text = label, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+            Text(text = value, fontSize = 16.sp, fontWeight = FontWeight.Medium)
         }
-    }
-}
-
-@Composable
-fun GoalInfoItem(label: String, value: String, icon: ImageVector) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = label,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(16.dp)
-            )
-            Text(
-                text = label,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-
-
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface,
-            fontSize = 18.sp
-        )
     }
 }
 
 @Preview
 @Composable
-fun MainGoalCardPreview() {
-    MainGoalCard(
-        goal = MainGoalModel(
-            goalType = GoalType.MUSCLE_GAIN,
-            startWeightInKg = 80.0,
-            targetWeightInKg = 70.0,
-            startFatPercentage = 25.0,
-            targetFatPercentage = 20.0,
-            goalStartDate = Date(System.currentTimeMillis() - (7 * 24 * 60 * 60 * 1000)), // A week ago
-            goalEndDate = Date(System.currentTimeMillis() + (30 * 24 * 60 * 60 * 1000))  // A month from now
-        )
-    )
+fun GoalsScreenPreview() {
+    MainGoalCard(MainGoalModel(weeklyGoals = listOf(WeeklyGoalModel())))
 }

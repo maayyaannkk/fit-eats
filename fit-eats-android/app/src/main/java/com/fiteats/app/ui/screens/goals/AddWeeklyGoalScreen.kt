@@ -4,7 +4,6 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -12,8 +11,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.LocalFireDepartment
-import androidx.compose.material.icons.filled.Whatshot
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -42,8 +39,6 @@ import androidx.navigation.compose.rememberNavController
 import com.fiteats.app.models.ActivityLevelTdee
 import com.fiteats.app.models.MainGoalModel
 import com.fiteats.app.models.WeeklyGoalModel
-import com.fiteats.app.ui.components.GoalInfoItem
-import com.fiteats.app.ui.components.MacrosRow
 import com.fiteats.app.ui.custom.CustomDialog
 import com.fiteats.app.ui.custom.DateFilters
 import com.fiteats.app.ui.custom.OutlinedDatePicker
@@ -226,7 +221,7 @@ fun AddWeeklyGoalScreen(navController: NavHostController, mainGoalModel: MainGoa
                         modifier = Modifier.padding(24.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        Row(
+                        /*Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
@@ -246,7 +241,7 @@ fun AddWeeklyGoalScreen(navController: NavHostController, mainGoalModel: MainGoa
                             protein = macroGoal!!.macronutrientSplit.protein.totalGrams,
                             carbs = macroGoal!!.macronutrientSplit.carbohydrates.totalGrams,
                             fats = macroGoal!!.macronutrientSplit.fat.totalGrams,
-                        )
+                        )*/
                     }
 
                 }

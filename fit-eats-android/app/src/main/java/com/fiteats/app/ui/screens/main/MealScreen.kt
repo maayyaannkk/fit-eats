@@ -18,7 +18,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.fiteats.app.ui.components.MacroCard
 import com.fiteats.app.ui.components.MealPlanList
 import com.fiteats.app.ui.viewModel.MealPlanViewModel
 
@@ -40,7 +39,7 @@ fun MealScreen() {
             .fillMaxSize()
     ) {
         if (userGoal != null && !userGoal!!.weeklyGoals.isNullOrEmpty()) {
-            MacroCard(userGoal!!.weeklyGoals!![0])
+            //MacroCard(userGoal!!.weeklyGoals!![0])
 
             if (mealPlan != null) {
                 MealPlanList(mealPlan!!) { dayMeal, userPrompt ->
