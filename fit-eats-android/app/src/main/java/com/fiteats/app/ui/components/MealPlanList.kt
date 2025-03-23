@@ -39,7 +39,7 @@ fun MealPlanList(mealPlan: MealPlan, onDayMealEdit: (DayMeal, String) -> Unit) {
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .padding(start = 16.dp, end = 16.dp)
     ) {
         items(items = mealPlan.dayMeals, key = { it.id!! }) {
             DayMealItem(dayMeal = it, onDayMealEdit)

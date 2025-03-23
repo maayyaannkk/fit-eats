@@ -3,11 +3,15 @@ package com.fiteats.app.ui.screens.main
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -33,49 +37,59 @@ fun MealScreen() {
     val apiError by viewModel.apiError.observeAsState(initial = null)
 
     LaunchedEffect(Unit) { viewModel.getActiveGoal() }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        if (userGoal != null && !userGoal!!.weeklyGoals.isNullOrEmpty()) {
-            //MacroCard(userGoal!!.weeklyGoals!![0])
-
-            if (mealPlan != null) {
-                MealPlanList(mealPlan!!) { dayMeal, userPrompt ->
-                    viewModel.customizeMealPlan(mealPlan!!.id!!, dayMeal.id!!, userPrompt)
-                }
-            } else {
-                Button(onClick = {
-                    viewModel.createMealPlan(userGoal!!.id!!, userGoal!!.weeklyGoals!![0].id!!)
-                }) {
-                    Text("Create Meal Plan")
-                }
-            }
-
-        } else {
-            Text(
-                modifier = Modifier.fillMaxSize(),
-                text = "Create a weekly goal before planning meals",
-                fontSize = 18.sp
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Meals") },
+                windowInsets = WindowInsets(0)
             )
         }
+    ) { paddingValue ->
+        Column(
+            modifier = Modifier
+                .padding(paddingValue)
+                .fillMaxSize()
+        ) {
+            if (userGoal != null && !userGoal!!.weeklyGoals.isNullOrEmpty()) {
+                //MacroCard(userGoal!!.weeklyGoals!![0])
 
-        // Observe API Error
-        apiError?.let { error ->
-            Toast.makeText(context, error, Toast.LENGTH_LONG).show()
-        }
+                if (mealPlan != null) {
+                    MealPlanList(mealPlan!!) { dayMeal, userPrompt ->
+                        viewModel.customizeMealPlan(mealPlan!!.id!!, dayMeal.id!!, userPrompt)
+                    }
+                } else {
+                    Button(onClick = {
+                        viewModel.createMealPlan(userGoal!!.id!!, userGoal!!.weeklyGoals!![0].id!!)
+                    }) {
+                        Text("Create Meal Plan")
+                    }
+                }
 
-        // Show Loading Indicator
-        if (isLoading) {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier.fillMaxSize()
-            ) {
-                CircularProgressIndicator()
+            } else {
+                Text(
+                    modifier = Modifier.fillMaxSize(),
+                    text = "Create a weekly goal before planning meals",
+                    fontSize = 18.sp
+                )
+            }
+
+            // Observe API Error
+            apiError?.let { error ->
+                Toast.makeText(context, error, Toast.LENGTH_LONG).show()
+            }
+
+            // Show Loading Indicator
+            if (isLoading) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    CircularProgressIndicator()
+                }
             }
         }
     }
+
 }
 
 @Preview

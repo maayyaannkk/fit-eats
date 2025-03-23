@@ -33,7 +33,7 @@ fun MainGoalCard(mainGoal: MainGoalModel) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .padding(start = 16.dp, end = 16.dp, top = 8.dp)
     ) {
         // Current Goal Card
         Card(
@@ -61,17 +61,21 @@ fun MainGoalCard(mainGoal: MainGoalModel) {
                         Text(
                             text = "Start Weight",
                             fontSize = 14.sp,
+                        )
+                        Text(
+                            text = "${mainGoal.startWeightInKg} kg", fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold
                         )
-                        Text(text = "${mainGoal.startWeightInKg} kg", fontSize = 16.sp)
                     }
                     Column(horizontalAlignment = Alignment.End) {
                         Text(
                             text = "Target Weight",
                             fontSize = 14.sp,
+                        )
+                        Text(
+                            text = "${mainGoal.targetWeightInKg} kg", fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold
                         )
-                        Text(text = "${mainGoal.targetWeightInKg} kg", fontSize = 16.sp)
                     }
                 }
                 Spacer(modifier = Modifier.height(10.dp))
@@ -85,17 +89,21 @@ fun MainGoalCard(mainGoal: MainGoalModel) {
                         Text(
                             text = "Start Body Fat",
                             fontSize = 14.sp,
+                        )
+                        Text(
+                            text = "${mainGoal.startFatPercentage}%", fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold
                         )
-                        Text(text = "${mainGoal.startFatPercentage}%", fontSize = 16.sp)
                     }
                     Column(horizontalAlignment = Alignment.End) {
                         Text(
                             text = "Target Body Fat",
                             fontSize = 14.sp,
+                        )
+                        Text(
+                            text = "${mainGoal.targetFatPercentage}%", fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold
                         )
-                        Text(text = "${mainGoal.targetFatPercentage}%", fontSize = 16.sp)
                     }
                 }
 
@@ -123,13 +131,15 @@ fun MainGoalCard(mainGoal: MainGoalModel) {
                     Column {
                         Text(
                             text = "Started: ${mainGoal.goalStartDate?.toDDMMMYYYY()}",
-                            fontSize = 14.sp
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold
                         )
                     }
                     Column(horizontalAlignment = Alignment.End) {
                         Text(
                             text = "Ends: ${mainGoal.goalEndDate?.toDDMMMYYYY()}",
-                            fontSize = 14.sp
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold
                         )
                     }
                 }
@@ -155,7 +165,7 @@ fun MainGoalCard(mainGoal: MainGoalModel) {
                         Column {
                             Text(
                                 text = "Weekly Goal",
-                                fontSize = 20.sp,
+                                fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold
                             )
                         }
@@ -172,8 +182,8 @@ fun MainGoalCard(mainGoal: MainGoalModel) {
                                     ) // Adjust padding for circular effect
                             ) {
                                 Text(
-                                    text = "In Progress",
-                                    fontSize = 14.sp,
+                                    text = "Active",
+                                    fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.tertiary
                                 )
@@ -181,7 +191,7 @@ fun MainGoalCard(mainGoal: MainGoalModel) {
                         }
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    
+
                     Row(
                         Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -209,9 +219,9 @@ fun MainGoalCard(mainGoal: MainGoalModel) {
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
                         text = "Week of ${weeklyGoal.startDate?.toDDMMM()} - ${weeklyGoal.endDate?.toDDMMM()}",
-                        fontSize = 14.sp
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold
                     )
-
                 }
             }
         }

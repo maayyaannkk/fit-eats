@@ -260,6 +260,7 @@ fun EditUserProfileDialog(user: UserModel, onDismiss: () -> Unit, onSave: (UserM
         title = { Text("Edit Profile") },
         text = {
             Column(
+                modifier = Modifier.verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 OutlinedTextField(
