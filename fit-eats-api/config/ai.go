@@ -547,7 +547,7 @@ func GetWeeklyMealPrompt(user models.User,
 		" Time should always be in 24hours format for eg. 1830 for 6:30 pm. "+
 		" Make sure the ingredients are generic and not specific to a brand or country, also make sure to include raw ingredients rather than processed or store bought finished products."+
 		" for eg. ingredient should not include 'chicken tikka masala' instead break it down into raw ingredients and include in recipe steps.",
-		currentWeightInKg, bodyFatString, user.Age, user.Sex, user.HeightInCm, goalType, goalWeightInKg, goalBodyFatPercentage, maxCalories, maxProtein, maxFat, maxCarb, user.Country, user.DietPreferences)
+		currentWeightInKg, bodyFatString, user.Age, user.Sex, user.HeightInCm, goalType, goalWeightInKg, goalBodyFatPercentage, maxCalories, maxProtein, maxFat, maxCarb, user.Country, user.DietPreference)
 }
 
 func GetSingleMealEditPrompt(user models.User, mealsAsJsonString string, prompt string,
@@ -574,5 +574,5 @@ func GetSingleMealEditPrompt(user models.User, mealsAsJsonString string, prompt 
 		" for eg. ingredient should not include 'chicken tikka masala' instead break it down into raw ingredients and include in recipe steps."+
 		" Meals: %s."+
 		" Prompt: %s.",
-		currentWeightInKg, bodyFatString, user.Age, user.Sex, user.HeightInCm, goalType, goalWeightInKg, goalBodyFatPercentage, maxCalories, maxProtein, maxFat, maxCarb, user.Country, user.DietPreferences, mealsAsJsonString, prompt)
+		currentWeightInKg, bodyFatString, user.Age, user.Sex, user.HeightInCm, goalType, goalWeightInKg, goalBodyFatPercentage, maxCalories, maxProtein, maxFat, maxCarb, user.Country, user.DietPreference, mealsAsJsonString, prompt)
 }

@@ -181,18 +181,29 @@ fun MainGoalCard(mainGoal: MainGoalModel) {
                         }
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-
+                    
                     Row(
                         Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        GoalBox("Calories", "${weeklyGoal.targetDailyCalories}", Color(0xFFE3EFFF))
                         GoalBox(
+                            modifier = Modifier.weight(1f),
+                            "Calories",
+                            "${weeklyGoal.targetDailyCalories}",
+                            Color(0xFFE3EFFF)
+                        )
+                        GoalBox(
+                            modifier = Modifier.weight(1f),
                             "Protein",
                             "${weeklyGoal.targetDailyMacrosProtein}g",
                             Color(0xFFE3FFEB)
                         )
-                        GoalBox("Carbs", "${weeklyGoal.targetDailyMacrosCarbs}g", Color(0xFFFFF5E3))
+                        GoalBox(
+                            modifier = Modifier.weight(1f),
+                            "Carbs",
+                            "${weeklyGoal.targetDailyMacrosCarbs}g",
+                            Color(0xFFFFF5E3)
+                        )
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -208,9 +219,9 @@ fun MainGoalCard(mainGoal: MainGoalModel) {
 }
 
 @Composable
-fun GoalBox(label: String, value: String, backgroundColor: Color) {
+fun GoalBox(modifier: Modifier, label: String, value: String, backgroundColor: Color) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .background(backgroundColor, shape = RoundedCornerShape(8.dp))
             .padding(horizontal = 12.dp, vertical = 8.dp)
     ) {

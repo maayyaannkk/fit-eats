@@ -7,7 +7,6 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -21,27 +20,15 @@ import com.fiteats.app.ui.navigation.Screens
 import com.fiteats.app.ui.screens.main.HomeScreen
 import com.fiteats.app.ui.screens.main.MealScreen
 import com.fiteats.app.ui.screens.main.MyGoalsScreen
-import com.fiteats.app.ui.screens.main.ProfileScreen
+import com.fiteats.app.ui.screens.main.UserProfileScreen
 import com.fiteats.app.utils.GsonUtil
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(mainNavController: NavController) {
     val navController = rememberNavController()
-    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
-    val title = when (currentRoute) {
-        BottomNavItem.Meals.route -> "Meals"
-        BottomNavItem.Profile.route -> "Profile"
-        BottomNavItem.Goals.route -> "Goals"
-        else -> "Home"
-    }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(title) }
-            )
-        },
         bottomBar = {
             BottomNavigationBar(navController)
         }
@@ -67,7 +54,7 @@ fun MainScreen(mainNavController: NavController) {
                 )
             }
             composable(BottomNavItem.Profile.route) {
-                ProfileScreen {
+                UserProfileScreen {
                     mainNavController.navigate(route = Screens.SplashScreen.route) {
                         mainNavController.currentBackStackEntry?.let {
                             popUpTo(it.destination.id) {

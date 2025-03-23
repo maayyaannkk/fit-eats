@@ -22,5 +22,8 @@ data class UserModel(
     val sex: String? = null,
 
     @SerializedName("country")
-    val country: String? = null
+    val country: String? = null,
+
+    @SerializedName("dietPreference")
+    val dietPreference: String? = null
 )
