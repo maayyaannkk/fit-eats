@@ -15,9 +15,14 @@ fun Date.formatToString(format: String, locale: Locale = Locale.getDefault()): S
     }
 }
 
-fun Date.toDDMMM(): String?{
+fun Date.toDDMMM(): String? {
     return formatToString("dd, MMM")
 }
-fun Date.toDDMMMYYYY(): String?{
+
+fun Date.toDDMMMYYYY(): String? {
     return formatToString("dd, MMM YYYY")
+}
+
+fun Date.toEEEEMMMdd(): String? {
+    return formatToString("EEEE dd, MMM")
 }

@@ -544,7 +544,7 @@ func GetWeeklyMealPrompt(user models.User,
 		" Include meals that are easily available in my country, and keep my dietary preference in line with this."+
 		" Suggest a meal plan for a the whole week including time frames for each meal."+
 		" Make sure to include calories and macros."+
-		" Time should always be in 24hours format for eg. 1830 for 6:30 pm. "+
+		" Time should always be in am/pm format for eg. 6:30 pm. "+
 		" Make sure the ingredients are generic and not specific to a brand or country, also make sure to include raw ingredients rather than processed or store bought finished products."+
 		" for eg. ingredient should not include 'chicken tikka masala' instead break it down into raw ingredients and include in recipe steps.",
 		currentWeightInKg, bodyFatString, user.Age, user.Sex, user.HeightInCm, goalType, goalWeightInKg, goalBodyFatPercentage, maxCalories, maxProtein, maxFat, maxCarb, user.Country, user.DietPreference)
@@ -568,7 +568,7 @@ func GetSingleMealEditPrompt(user models.User, mealsAsJsonString string, prompt 
 		" Suggest changes to a single day meal plan. I will attach the meal plan and also a prompt with the requested changes."+
 		" Make sure to only include items from the prompt that are relevant to meal plan and exclude anything else."+
 		" Make sure to include calories and macros."+
-		" Time should always be in 24hours format for eg. 1830 for 6:30 pm. "+
+		" Time should always be in am/pm format for eg. 6:30 pm. "+
 		" If you don't find anything relevant in the prompt send the same meal back."+
 		" Make sure the ingredients are generic and not specific to a brand or country, also make sure to include raw ingredients rather than processed or store bought finished products."+
 		" for eg. ingredient should not include 'chicken tikka masala' instead break it down into raw ingredients and include in recipe steps."+

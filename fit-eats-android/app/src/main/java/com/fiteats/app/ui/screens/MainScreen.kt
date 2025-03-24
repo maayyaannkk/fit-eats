@@ -39,7 +39,11 @@ fun MainScreen(mainNavController: NavController) {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(BottomNavItem.Home.route) { HomeScreen() }
-            composable(BottomNavItem.Meals.route) { MealScreen() }
+            composable(BottomNavItem.Meals.route) {
+                MealScreen {
+                    //TODO show meal details screen
+                }
+            }
             composable(BottomNavItem.Goals.route) {
                 MyGoalsScreen(
                     onAddWeeklyGoal = { mainGoal ->

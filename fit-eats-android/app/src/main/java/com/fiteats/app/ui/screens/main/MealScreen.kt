@@ -22,12 +22,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.fiteats.app.ui.components.MealPlanList
+import com.fiteats.app.models.Meal
+import com.fiteats.app.ui.components.MealPlanCard
 import com.fiteats.app.ui.viewModel.MealPlanViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MealScreen() {
+fun MealScreen(onMealClick: (Meal) -> Unit) {
     val viewModel: MealPlanViewModel = viewModel()
     val context = LocalContext.current
 
@@ -51,12 +52,16 @@ fun MealScreen() {
                 .fillMaxSize()
         ) {
             if (userGoal != null && !userGoal!!.weeklyGoals.isNullOrEmpty()) {
-                //MacroCard(userGoal!!.weeklyGoals!![0])
-
                 if (mealPlan != null) {
-                    MealPlanList(mealPlan!!) { dayMeal, userPrompt ->
-                        viewModel.customizeMealPlan(mealPlan!!.id!!, dayMeal.id!!, userPrompt)
-                    }
+                    MealPlanCard(
+                        mealPlan!!,
+                        onMealClick = {
+                            onMealClick(it)
+                        },
+                        onDayMealEdit = { dayMeal, userPrompt ->
+                            viewModel.customizeMealPlan(mealPlan!!.id!!, dayMeal.id!!, userPrompt)
+                        }
+                    )
                 } else {
                     Button(onClick = {
                         viewModel.createMealPlan(userGoal!!.id!!, userGoal!!.weeklyGoals!![0].id!!)
@@ -95,5 +100,5 @@ fun MealScreen() {
 @Preview
 @Composable
 fun MealScreenPreview() {
-    MealScreen()
+    MealScreen {}
 }

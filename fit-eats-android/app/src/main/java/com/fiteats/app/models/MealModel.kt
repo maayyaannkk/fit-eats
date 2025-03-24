@@ -27,7 +27,8 @@ data class Meal(
     val time: String,
     val ingredients: List<Ingredient>,
     @SerializedName("recipe_steps")
-    val recipeSteps: List<String>
+    val recipeSteps: List<String>,
+    val isConsumed: Boolean = false
 )
 
 data class Ingredient(

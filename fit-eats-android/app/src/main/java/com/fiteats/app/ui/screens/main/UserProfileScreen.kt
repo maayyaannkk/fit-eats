@@ -74,7 +74,10 @@ fun UserProfileScreen(onLogout: () -> Unit) {
             TopAppBar(
                 title = { Text("Profile") },
                 actions = {
-                    IconButton(onClick = { onLogout() }) {
+                    IconButton(onClick = {
+                        mainViewModel.logout()
+                        onLogout()
+                    }) {
                         Icon(Icons.AutoMirrored.Default.ExitToApp, contentDescription = "Logout")
                     }
                 },
