@@ -15,6 +15,7 @@ sealed class Screens(val route: String) {
     object MainScreen : Screens("main")
     object AddMainGoalScreen : Screens("add_goal_main")
     object AddWeeklyGoalScreen : Screens("add_goal_weekly")
+    object MealDetailScreen : Screens("meal_detail")
 }
 
 sealed class BottomNavItem(val route: String, val icon: ImageVector, val label: String) {

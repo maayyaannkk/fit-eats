@@ -40,18 +40,17 @@ fun MainScreen(mainNavController: NavController) {
         ) {
             composable(BottomNavItem.Home.route) { HomeScreen() }
             composable(BottomNavItem.Meals.route) {
-                MealScreen {
-                    //TODO show meal details screen
+                MealScreen { meal ->
+                    mainNavController.navigate(
+                        route = "${Screens.MealDetailScreen.route}?meal=${GsonUtil.gson.toJson(meal)}"
+                    )
                 }
             }
             composable(BottomNavItem.Goals.route) {
                 MyGoalsScreen(
                     onAddWeeklyGoal = { mainGoal ->
-                        val route = Screens.AddWeeklyGoalScreen.route +
-                                "/" +
-                                GsonUtil.gson.toJson(mainGoal)
                         mainNavController.navigate(
-                            route = route
+                            route = "${Screens.AddWeeklyGoalScreen.route}?goal=${GsonUtil.gson.toJson(mainGoal)}"
                         )
                     },
                     onAddMainGoal = { mainNavController.navigate(route = Screens.AddMainGoalScreen.route) }

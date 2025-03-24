@@ -54,9 +54,11 @@ import androidx.compose.ui.window.DialogProperties
 import com.fiteats.app.models.DayMeal
 import com.fiteats.app.models.Meal
 import com.fiteats.app.models.MealPlan
+import com.fiteats.app.ui.screens.meal.NutritionInfo
 import com.fiteats.app.utils.toDDMMM
 import com.fiteats.app.utils.toEEEEMMMdd
 import java.util.Date
+import kotlin.math.ceil
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -119,7 +121,7 @@ fun DayMealCard(
     val timeDifferenceDays = timeDifferenceMillis.toDouble() / 86400000.0
 
     val current = if (timeDifferenceMillis > 0)
-        kotlin.math.ceil(timeDifferenceDays).toInt() // Use ceil to round up to the next integer
+        ceil(timeDifferenceDays).toInt() // Use ceil to round up to the next integer
     else 0
 
     var currentDay =
@@ -191,6 +193,13 @@ fun DayMealCard(
         }
     }
 
+    NutritionInfo(
+        calories = currentDayMeal.meals.sumOf { it.calories },
+        protein = currentDayMeal.meals.sumOf { it.protein },
+        carbs = currentDayMeal.meals.sumOf { it.carbs },
+        fat = currentDayMeal.meals.sumOf { it.fat }
+    )
+
     LazyColumn {
         currentDayMeal.meals.forEach { meal ->
             item {
@@ -209,6 +218,7 @@ fun DayMealCard(
             onDismiss = { showDialog.value = false }
         )
     }
+
 }
 
 @Composable

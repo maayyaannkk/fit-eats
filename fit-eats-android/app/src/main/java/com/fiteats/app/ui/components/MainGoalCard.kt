@@ -173,7 +173,7 @@ fun MainGoalCard(mainGoal: MainGoalModel) {
                             Box(
                                 modifier = Modifier
                                     .background(
-                                        color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.15f),
+                                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
                                         shape = RoundedCornerShape(50) // Circular background
                                     )
                                     .padding(
@@ -185,7 +185,7 @@ fun MainGoalCard(mainGoal: MainGoalModel) {
                                     text = "Active",
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.tertiary
+                                    color = MaterialTheme.colorScheme.primary
                                 )
                             }
                         }
