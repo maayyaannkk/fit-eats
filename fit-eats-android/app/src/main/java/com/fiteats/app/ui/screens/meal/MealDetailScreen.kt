@@ -52,6 +52,7 @@ import com.fiteats.app.models.Meal
 import com.fiteats.app.ui.custom.LoadingDialog
 import com.fiteats.app.ui.viewModel.MealDetailViewModel
 
+//TODO share viewmodel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MealDetailsScreen(navController: NavController, meal: Meal) {

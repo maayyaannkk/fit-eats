@@ -3,6 +3,7 @@ package com.fiteats.app.ui.screens.main
 import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,9 +24,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -90,18 +94,34 @@ fun MealScreen(onMealClick: (Meal) -> Unit) {
                                 it
                             )
                         }) { showDialog.value = false }
-
-                    Button(onClick = { showDialog.value = true }) {
-                        Text("Create Meal Plan")
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally // Add this line
+                    ) {
+                        Button(
+                            onClick = { showDialog.value = true },
+                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                        ) {
+                            Text("Create Meal Plan")
+                        }
                     }
                 }
 
             } else {
-                Text(
+                Column(
                     modifier = Modifier.fillMaxSize(),
-                    text = "Create a weekly goal before planning meals",
-                    fontSize = 18.sp
-                )
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally // Add this line
+                ) {
+                    Text(
+                        modifier = Modifier.fillMaxWidth().padding(16.dp), // Use fillMaxWidth and add padding for better readability
+                        text = "Create a weekly goal before planning meals",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
 
             LaunchedEffect(apiError) {
@@ -176,6 +196,7 @@ fun CreateMealDialog(
     )
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview
 @Composable
 fun MealScreenPreview() {

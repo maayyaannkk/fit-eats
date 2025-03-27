@@ -42,6 +42,7 @@ import com.fiteats.app.ui.custom.LoadingDialog
 import com.fiteats.app.ui.custom.OutlinedDatePicker
 import com.fiteats.app.ui.custom.OutlinedNumberPicker
 import com.fiteats.app.ui.custom.OutlinedSpinner
+import com.fiteats.app.ui.screens.meal.NutritionInfo
 import com.fiteats.app.ui.viewModel.AddWeeklyGoalViewModel
 import com.fiteats.app.utils.removeTime
 import java.util.Calendar
@@ -216,33 +217,14 @@ fun AddWeeklyGoalScreen(navController: NavHostController, mainGoalModel: MainGoa
                     colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface),
                     elevation = CardDefaults.elevatedCardElevation(defaultElevation = 1.dp)
                 ) {
-                    Column(
-                        modifier = Modifier.padding(24.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        /*Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            GoalInfoItem(
-                                label = "Target Calories",
-                                value = "${macroGoal!!.dailyCalorieIntake.toInt()} kcal",
-                                icon = Icons.Filled.LocalFireDepartment
-                            )
-                            GoalInfoItem(
-                                label = "Calorie Deficit",
-                                value = "${macroGoal!!.dailyCalorieDeficit.toInt()} kcal",
-                                icon = Icons.Filled.Whatshot
-                            )
-                        }
-
-                        MacrosRow(
-                            protein = macroGoal!!.macronutrientSplit.protein.totalGrams,
-                            carbs = macroGoal!!.macronutrientSplit.carbohydrates.totalGrams,
-                            fats = macroGoal!!.macronutrientSplit.fat.totalGrams,
-                        )*/
+                    Column {
+                        NutritionInfo(
+                            macroGoal!!.dailyCalorieIntake,
+                            macroGoal!!.macronutrientSplit.protein.totalGrams,
+                            macroGoal!!.macronutrientSplit.carbohydrates.totalGrams,
+                            macroGoal!!.macronutrientSplit.fat.totalGrams
+                        )
                     }
-
                 }
                 Button(
                     enabled = !isLoading,
