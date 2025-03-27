@@ -30,14 +30,15 @@ class MealPlanViewModel(application: Application) : AndroidViewModel(application
 
     private var firstLoad = false
 
-    fun createMealPlan(mainGoalId: String, weeklyGoalId: String) {
+    fun createMealPlan(mainGoalId: String, weeklyGoalId: String, prompt: String) {
         viewModelScope.launch {
             _isLoading.value = true // Set loading to true at the beginning
             try {
                 val response = api.createMealPlan(
                     UserUtils.getUser(getApplication())!!.id!!,
                     mainGoalId,
-                    weeklyGoalId
+                    weeklyGoalId,
+                    prompt
                 )
                 if (response.isSuccessful) {
                     val mealPlanResponse = response.body()

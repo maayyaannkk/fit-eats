@@ -126,7 +126,12 @@ func (c *MealController) CreateWeeklyMealPlan(ctx *gin.Context) {
 		return
 	}
 
-	prompt := config.GetWeeklyMealPrompt(*user, float32(goal.WeeklyGoals[0].CurrentWeightInKg), float32(goal.WeeklyGoals[0].CurrentFatPercentage),
+	extraPrompt, err1 := ctx.GetQuery("prompt")
+	if !err1 {
+		extraPrompt = ""
+	}
+
+	prompt := config.GetWeeklyMealPrompt(*user, extraPrompt, float32(goal.WeeklyGoals[0].CurrentWeightInKg), float32(goal.WeeklyGoals[0].CurrentFatPercentage),
 		float32(goal.TargetWeightInKg), float32(goal.TargetFatPercentage), int32(goal.WeeklyGoals[0].TargetDailyCalories),
 		int32(goal.WeeklyGoals[0].TargetDailyMacrosFats), int32(goal.WeeklyGoals[0].TargetDailyMacrosCarbs), int32(goal.WeeklyGoals[0].TargetDailyMacrosProtein), string(goal.GoalType))
 

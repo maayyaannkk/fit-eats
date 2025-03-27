@@ -1,8 +1,9 @@
 package com.fiteats.app.ui.components
 
-import android.util.Log
+import android.os.Build
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -36,7 +37,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -59,11 +59,17 @@ import com.fiteats.app.models.DayMeal
 import com.fiteats.app.models.Meal
 import com.fiteats.app.models.MealPlan
 import com.fiteats.app.ui.screens.meal.NutritionInfo
+import com.fiteats.app.utils.removeTime
 import com.fiteats.app.utils.toDDMMM
 import com.fiteats.app.utils.toEEEEMMMdd
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import java.util.Date
+import java.util.Locale
 import kotlin.math.ceil
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MealPlanCard(
@@ -117,6 +123,7 @@ fun MealPlanCard(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DayMealCard(
     mealPlan: MealPlan,
@@ -124,7 +131,8 @@ fun DayMealCard(
     onDayMealEdit: (DayMeal, String) -> Unit,
     onDayMealConsume: (String) -> Unit
 ) {
-    val timeDifferenceMillis = Date().time - mealPlan.dayMeals[0].date.time
+    val timeDifferenceMillis =
+        Date().removeTime().time - mealPlan.dayMeals[0].date.removeTime().time
     val timeDifferenceDays = timeDifferenceMillis.toDouble() / 86400000.0
 
     val current = if (timeDifferenceMillis > 0)
@@ -134,10 +142,6 @@ fun DayMealCard(
     var currentDay by rememberSaveable { mutableIntStateOf(if (current in 0..mealPlan.dayMeals.size - 1) current else 0) }
 
     val currentDayMeal = mealPlan.dayMeals[currentDay]
-
-    LaunchedEffect(currentDay) {
-        Log.e("currentDay", currentDay.toString())
-    }
 
     Row(
         Modifier
@@ -212,7 +216,9 @@ fun DayMealCard(
     )
 
     LazyColumn {
-        items(currentDayMeal.meals, key = { it.id!! }) {
+        items(currentDayMeal.meals.sortedBy {
+            LocalTime.parse(it.time.trim().replace(Regex("(?i)am"), "AM").replace(Regex("(?i)pm"), "PM"), DateTimeFormatter.ofPattern("h:mm a", Locale.ENGLISH))
+        }, key = { it.id!! }) {
             MealCard(it, onMealClick, onDayMealConsume)
         }
     }

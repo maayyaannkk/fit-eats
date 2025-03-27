@@ -23,7 +23,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -50,13 +49,14 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.fiteats.app.models.Ingredient
 import com.fiteats.app.models.Meal
+import com.fiteats.app.ui.custom.LoadingDialog
 import com.fiteats.app.ui.viewModel.MealDetailViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MealDetailsScreen(navController: NavController, meal: Meal) {
     val viewModel: MealDetailViewModel = viewModel()
-    val isLoading by viewModel.isLoading.observeAsState()
+    val isLoading by viewModel.isLoading.observeAsState(initial = false)
     val error by viewModel.apiError.observeAsState(initial = "")
 
     Scaffold(
@@ -197,8 +197,8 @@ fun MealDetailsScreen(navController: NavController, meal: Meal) {
             Spacer(modifier = Modifier.height(24.dp))
 
             if (!meal.isConsumed) {
-                if (isLoading == true) {
-                    CircularProgressIndicator()
+                if (isLoading ) {
+                    LoadingDialog()
                 } else {
                     Button(
                         onClick = { viewModel.consumeMeal(meal.id!!) },

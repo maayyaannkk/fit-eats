@@ -2,7 +2,6 @@ package com.fiteats.app.ui.screens.goals
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,7 +11,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,7 +23,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,6 +34,7 @@ import com.fiteats.app.models.MainGoalModel
 import com.fiteats.app.models.Pace
 import com.fiteats.app.ui.custom.CustomDialog
 import com.fiteats.app.ui.custom.DateFilters
+import com.fiteats.app.ui.custom.LoadingDialog
 import com.fiteats.app.ui.custom.OutlinedDatePicker
 import com.fiteats.app.ui.custom.OutlinedNumberPicker
 import com.fiteats.app.ui.custom.OutlinedSpinner
@@ -312,12 +310,7 @@ fun AddMainGoalScreen(navController: NavController) {
 
             // Show Loading Indicator
             if (isLoading) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    CircularProgressIndicator()
-                }
+                LoadingDialog()
             }
 
             val finalSubmit by viewModel.finalSubmit.observeAsState(initial = null)

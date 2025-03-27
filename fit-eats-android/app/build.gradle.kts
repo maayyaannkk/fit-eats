@@ -61,6 +61,10 @@ dependencies {
     implementation(libs.logging.interceptor)
     implementation (libs.androidx.security.crypto)
 
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
+    implementation(libs.coil.gif)
+
     //Test dependencies
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

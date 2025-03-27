@@ -1,14 +1,19 @@
 package com.fiteats.app.ui.screens.main
 
+import android.os.Build
 import android.widget.Toast
-import androidx.compose.foundation.layout.Box
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -16,16 +21,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.fiteats.app.models.Meal
 import com.fiteats.app.ui.components.MealPlanCard
+import com.fiteats.app.ui.custom.LoadingDialog
 import com.fiteats.app.ui.viewModel.MealPlanViewModel
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MealScreen(onMealClick: (Meal) -> Unit) {
@@ -69,9 +80,18 @@ fun MealScreen(onMealClick: (Meal) -> Unit) {
                         }
                     )
                 } else {
-                    Button(onClick = {
-                        viewModel.createMealPlan(userGoal!!.id!!, userGoal!!.weeklyGoals!![0].id!!)
-                    }) {
+                    val showDialog = remember { mutableStateOf(false) }
+                    if (showDialog.value)
+                        CreateMealDialog(onConfirm = {
+                            showDialog.value = false
+                            viewModel.createMealPlan(
+                                userGoal!!.id!!,
+                                userGoal!!.weeklyGoals!![0].id!!,
+                                it
+                            )
+                        }) { showDialog.value = false }
+
+                    Button(onClick = { showDialog.value = true }) {
                         Text("Create Meal Plan")
                     }
                 }
@@ -91,16 +111,69 @@ fun MealScreen(onMealClick: (Meal) -> Unit) {
 
             // Show Loading Indicator
             if (isLoading) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    CircularProgressIndicator()
-                }
+                LoadingDialog()
             }
         }
     }
+}
 
+@Composable
+fun CreateMealDialog(
+    onConfirm: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val dialogText = remember { mutableStateOf("") }
+    AlertDialog(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        shape = RoundedCornerShape(5.dp),
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+        onDismissRequest = { onDismiss() },
+        title = {
+            Text(
+                "Create Meals",
+                fontSize = 16.sp
+            )
+        },
+        text = {
+            Column {
+                OutlinedTextField(
+                    placeholder = {
+                        Text(
+                            "Leave blank, or add any special requests\n" +
+                                    "I like mangoes.\n" +
+                                    "I am allergic to nuts, dairy, gluten.\n" +
+                                    "Use Air-fried, grilled, boiled, etc.\n" +
+                                    "Use only affordable ingredients.",
+                            fontStyle = FontStyle.Italic,
+                            fontSize = 12.sp
+                        )
+                    },
+                    value = dialogText.value,
+                    onValueChange = { input ->
+                        val filteredText = input.filter { it.isLetter() || it.isWhitespace() }
+                        dialogText.value = filteredText
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(150.dp)
+                )
+            }
+        },
+        confirmButton = {
+            Button(onClick = {
+                onConfirm(dialogText.value)
+            }) {
+                Text("Submit")
+            }
+        },
+        dismissButton = {
+            Button(onClick = { onDismiss() }) {
+                Text("Cancel")
+            }
+        }
+    )
 }
 
 @Preview

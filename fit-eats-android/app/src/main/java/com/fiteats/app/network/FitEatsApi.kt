@@ -132,7 +132,8 @@ interface FitEatsApi {
     suspend fun createMealPlan(
         @Query("userId") userId: String,
         @Query("mainGoalId") mainGoalId: String,
-        @Query("weeklyGoalId") weeklyGoalId: String
+        @Query("weeklyGoalId") weeklyGoalId: String,
+        @Query("prompt") prompt: String
     ): Response<MealPlan>
 
     @PUT("customizeMealPlan")

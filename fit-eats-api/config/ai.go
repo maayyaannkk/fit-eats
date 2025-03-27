@@ -527,7 +527,7 @@ func GetDailyMacroPrompt(user models.User, currentWeightInKg float32, currentBod
 }
 
 // TODO add a user prompt for preferences
-func GetWeeklyMealPrompt(user models.User,
+func GetWeeklyMealPrompt(user models.User, prompt string,
 	currentWeightInKg float32, currentBodyFatPercentage float32,
 	goalWeightInKg float32, goalBodyFatPercentage float32,
 	maxCalories int32, maxFat int32, maxCarb int32,
@@ -546,8 +546,11 @@ func GetWeeklyMealPrompt(user models.User,
 		" Make sure to include calories and macros."+
 		" Time should always be in am/pm format for eg. 6:30 pm. "+
 		" Make sure the ingredients are generic and not specific to a brand or country, also make sure to include raw ingredients rather than processed or store bought finished products."+
-		" for eg. ingredient should not include 'chicken tikka masala' instead break it down into raw ingredients and include in recipe steps.",
-		currentWeightInKg, bodyFatString, user.Age, user.Sex, user.HeightInCm, goalType, goalWeightInKg, goalBodyFatPercentage, maxCalories, maxProtein, maxFat, maxCarb, user.Country, user.DietPreference)
+		" for eg. ingredient should not include 'chicken tikka masala' instead break it down into raw ingredients and include in recipe steps."+
+		" I will also attach a prompt with any special requests."+
+		" Make sure to only include items from the prompt that are relevant to meal plan and exclude anything else."+
+		" prompt: %s",
+		currentWeightInKg, bodyFatString, user.Age, user.Sex, user.HeightInCm, goalType, goalWeightInKg, goalBodyFatPercentage, maxCalories, maxProtein, maxFat, maxCarb, user.Country, user.DietPreference, prompt)
 }
 
 func GetSingleMealEditPrompt(user models.User, mealsAsJsonString string, prompt string,

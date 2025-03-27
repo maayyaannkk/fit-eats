@@ -114,11 +114,43 @@ func (r *UserGoalRepository) DeleteWeeklyUserGoal(ctx context.Context, mainGoalI
 }
 
 func (r *UserGoalRepository) GetUserWeeklyGoal(ctx context.Context, mainGoalId primitive.ObjectID, weeklyGoalId primitive.ObjectID) (*models.Goal, error) {
-	var userGoal models.Goal
-	err := r.Collection.FindOne(ctx, bson.M{"_id": mainGoalId, "weeklyGoals._id": weeklyGoalId}).Decode(&userGoal)
 
+	var userGoal models.Goal
+
+	pipeline := mongo.Pipeline{
+		bson.D{{Key: "$match", Value: bson.D{
+			{Key: "_id", Value: mainGoalId},
+			{Key: "weeklyGoals._id", Value: weeklyGoalId},
+		}}},
+		bson.D{{Key: "$addFields", Value: bson.D{ // Keeps all fields, modifies only weeklyGoals
+			{Key: "weeklyGoals", Value: bson.D{{Key: "$filter", Value: bson.D{
+				{Key: "input", Value: "$weeklyGoals"},
+				{Key: "as", Value: "goal"},
+				{Key: "cond", Value: bson.D{
+					{Key: "$and", Value: bson.A{
+						bson.D{{Key: "$lte", Value: bson.A{"$$goal.startDate", primitive.NewDateTimeFromTime(time.Now())}}},
+						bson.D{{Key: "$gte", Value: bson.A{"$$goal.endDate", primitive.NewDateTimeFromTime(time.Now())}}},
+					}},
+				}},
+			}}}},
+		}}},
+	}
+
+	cursor, err := r.Collection.Aggregate(ctx, pipeline)
 	if err != nil {
 		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	if cursor.Next(ctx) {
+		if err := cursor.Decode(&userGoal); err != nil {
+			return nil, err
+		}
+		if len(userGoal.WeeklyGoals) < 1 {
+			return nil, mongo.ErrNoDocuments
+		}
+	} else {
+		return nil, mongo.ErrNoDocuments
 	}
 
 	return &userGoal, nil
