@@ -81,6 +81,11 @@ interface FitEatsApi {
         @Query("mainGoalId") mainGoalId: String,
         @Query("weeklyGoalId") weeklyGoalId: String
     ): Response<MealPlan>
+
+    @PUT("consumeMeal")
+    suspend fun consumeMeal(
+        @Query("mealId") mealId: String
+    ): Response<JsonObject>
     //endregion
 
     //region AI routes
@@ -130,7 +135,7 @@ interface FitEatsApi {
         @Query("weeklyGoalId") weeklyGoalId: String
     ): Response<MealPlan>
 
-    @POST("customizeMealPlan")
+    @PUT("customizeMealPlan")
     suspend fun customizeMealPlan(
         @Query("mealPlanId") mealPlanId: String,
         @Query("dayMealId") dayMealId: String,

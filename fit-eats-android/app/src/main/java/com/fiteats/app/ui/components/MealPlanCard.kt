@@ -1,5 +1,6 @@
 package com.fiteats.app.ui.components
 
+import android.util.Log
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import androidx.compose.foundation.background
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
@@ -34,11 +36,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -65,7 +69,8 @@ import kotlin.math.ceil
 fun MealPlanCard(
     mealPlan: MealPlan,
     onMealClick: (Meal) -> Unit,
-    onDayMealEdit: (DayMeal, String) -> Unit
+    onDayMealEdit: (DayMeal, String) -> Unit,
+    onDayMealConsume: (String) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -108,14 +113,16 @@ fun MealPlanCard(
             }
         }
         HorizontalDivider()
-        DayMealCard(mealPlan, onMealClick, onDayMealEdit)
+        DayMealCard(mealPlan, onMealClick, onDayMealEdit, onDayMealConsume)
     }
 }
 
 @Composable
 fun DayMealCard(
-    mealPlan: MealPlan, onMealClick: (Meal) -> Unit,
-    onDayMealEdit: (DayMeal, String) -> Unit
+    mealPlan: MealPlan,
+    onMealClick: (Meal) -> Unit,
+    onDayMealEdit: (DayMeal, String) -> Unit,
+    onDayMealConsume: (String) -> Unit
 ) {
     val timeDifferenceMillis = Date().time - mealPlan.dayMeals[0].date.time
     val timeDifferenceDays = timeDifferenceMillis.toDouble() / 86400000.0
@@ -124,9 +131,13 @@ fun DayMealCard(
         ceil(timeDifferenceDays).toInt() // Use ceil to round up to the next integer
     else 0
 
-    var currentDay =
-        remember { mutableIntStateOf(if (current in 0..mealPlan.dayMeals.size - 1) current else 0) }
-    val currentDayMeal by remember { derivedStateOf { mealPlan.dayMeals[currentDay.intValue] } }
+    var currentDay by rememberSaveable { mutableIntStateOf(if (current in 0..mealPlan.dayMeals.size - 1) current else 0) }
+
+    val currentDayMeal = mealPlan.dayMeals[currentDay]
+
+    LaunchedEffect(currentDay) {
+        Log.e("currentDay", currentDay.toString())
+    }
 
     Row(
         Modifier
@@ -142,7 +153,7 @@ fun DayMealCard(
                 tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 modifier = Modifier
                     .size(15.dp)
-                    .clickable { if (currentDay.intValue > 0) currentDay.intValue -= 1 }
+                    .clickable { if (currentDay > 0) currentDay -= 1 }
             )
         }
 
@@ -159,7 +170,7 @@ fun DayMealCard(
                 tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 modifier = Modifier
                     .size(15.dp)
-                    .clickable { if (currentDay.intValue < mealPlan.dayMeals.size - 1) currentDay.intValue += 1 }
+                    .clickable { if (currentDay < mealPlan.dayMeals.size - 1) currentDay += 1 }
             )
         }
     }
@@ -201,10 +212,8 @@ fun DayMealCard(
     )
 
     LazyColumn {
-        currentDayMeal.meals.forEach { meal ->
-            item {
-                MealCard(meal, onMealClick)
-            }
+        items(currentDayMeal.meals, key = { it.id!! }) {
+            MealCard(it, onMealClick, onDayMealConsume)
         }
     }
 
@@ -222,7 +231,7 @@ fun DayMealCard(
 }
 
 @Composable
-fun MealCard(meal: Meal, onMealClick: (Meal) -> Unit) {
+fun MealCard(meal: Meal, onMealClick: (Meal) -> Unit, onDayMealConsume: (String) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -250,6 +259,7 @@ fun MealCard(meal: Meal, onMealClick: (Meal) -> Unit) {
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
                         .size(18.dp)
+                        .clickable(onClick = { if (!meal.isConsumed) onDayMealConsume(meal.id!!) })
                 )
             }
             Column(modifier = Modifier.weight(0.5f)) {
@@ -375,6 +385,6 @@ fun MealPlanCardPreview() {
             id = "1",
             mainGoalId = "2",
             weeklyGoalId = "3"
-        ), {}, { _, _ -> }
+        ), {}, { _, _ -> }, {}
     )
 }

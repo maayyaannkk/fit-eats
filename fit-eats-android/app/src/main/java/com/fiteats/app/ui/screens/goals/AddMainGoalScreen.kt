@@ -42,6 +42,7 @@ import com.fiteats.app.ui.custom.OutlinedNumberPicker
 import com.fiteats.app.ui.custom.OutlinedSpinner
 import com.fiteats.app.ui.viewModel.AddMainGoalViewModel
 import com.fiteats.app.utils.UserUtils
+import com.fiteats.app.utils.removeTime
 import java.util.Calendar
 import java.util.Date
 
@@ -279,8 +280,8 @@ fun AddMainGoalScreen(navController: NavController) {
                                 startFatPercentage = currentFatPercentage.value,
                                 targetWeightInKg = targetWeight.value,
                                 targetFatPercentage = targetFatPercentage.value,
-                                goalStartDate = startDate.value,
-                                goalEndDate = endDate.value,
+                                goalStartDate = startDate.value?.removeTime(),
+                                goalEndDate = endDate.value?.removeTime(),
                                 goalType = selectedOption.value?.goalType,
                                 weeklyWeightChange = selectedOption.value?.weeklyWeightChangeKg!!
                             )

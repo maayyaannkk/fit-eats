@@ -62,8 +62,8 @@ func (r *UserGoalRepository) GetUserActiveGoalByUserId(ctx context.Context, mong
 				{Key: "as", Value: "goal"},
 				{Key: "cond", Value: bson.D{
 					{Key: "$and", Value: bson.A{
-						bson.D{{Key: "$lte", Value: bson.A{"$$goal.startDate", time.Now()}}},
-						bson.D{{Key: "$gte", Value: bson.A{"$$goal.endDate", time.Now()}}},
+						bson.D{{Key: "$lte", Value: bson.A{"$$goal.startDate", primitive.NewDateTimeFromTime(time.Now())}}},
+						bson.D{{Key: "$gte", Value: bson.A{"$$goal.endDate", primitive.NewDateTimeFromTime(time.Now())}}},
 					}},
 				}},
 			}}}},
@@ -79,6 +79,9 @@ func (r *UserGoalRepository) GetUserActiveGoalByUserId(ctx context.Context, mong
 	if cursor.Next(ctx) {
 		if err := cursor.Decode(&userGoal); err != nil {
 			return nil, err
+		}
+		if len(userGoal.WeeklyGoals) < 1 {
+			return nil, mongo.ErrNoDocuments
 		}
 	} else {
 		return nil, mongo.ErrNoDocuments

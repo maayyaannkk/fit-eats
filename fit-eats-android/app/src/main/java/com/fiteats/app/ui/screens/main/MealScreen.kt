@@ -14,8 +14,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -32,12 +32,15 @@ fun MealScreen(onMealClick: (Meal) -> Unit) {
     val viewModel: MealPlanViewModel = viewModel()
     val context = LocalContext.current
 
-    val mealPlan by viewModel.mealPlan.observeAsState(initial = null)
-    val userGoal by viewModel.userGoal.observeAsState(initial = null)
-    val isLoading by viewModel.isLoading.observeAsState(initial = false)
-    val apiError by viewModel.apiError.observeAsState(initial = null)
+    val mealPlan by viewModel.mealPlan.collectAsState(initial = null)
+    val userGoal by viewModel.userGoal.collectAsState(initial = null)
+    val isLoading by viewModel.isLoading.collectAsState(initial = false)
+    val apiError by viewModel.apiError.collectAsState(initial = null)
 
-    LaunchedEffect(Unit) { viewModel.getActiveGoal() }
+    LaunchedEffect(Unit) {
+        viewModel.getActiveGoal()
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -60,6 +63,9 @@ fun MealScreen(onMealClick: (Meal) -> Unit) {
                         },
                         onDayMealEdit = { dayMeal, userPrompt ->
                             viewModel.customizeMealPlan(mealPlan!!.id!!, dayMeal.id!!, userPrompt)
+                        },
+                        onDayMealConsume = { mealId ->
+                            viewModel.consumeMeal(mealId)
                         }
                     )
                 } else {
@@ -78,9 +84,9 @@ fun MealScreen(onMealClick: (Meal) -> Unit) {
                 )
             }
 
-            // Observe API Error
-            apiError?.let { error ->
-                Toast.makeText(context, error, Toast.LENGTH_LONG).show()
+            LaunchedEffect(apiError) {
+                if (apiError != null)
+                    Toast.makeText(context, apiError, Toast.LENGTH_LONG).show()
             }
 
             // Show Loading Indicator

@@ -85,3 +85,18 @@ func (r *MealRepository) GetMealPlanMeta(ctx context.Context, mealPlanId primiti
 
 	return &mealPlan, nil
 }
+
+func (r *MealRepository) ConsumeSingleMeal(ctx context.Context, mealId primitive.ObjectID) error {
+	filter := bson.M{"dayMeals.meals._id": mealId}
+
+	update := bson.M{"$set": bson.M{"dayMeals.$[].meals.$[meal].isConsumed": true}}
+
+	options := options.Update().SetArrayFilters(options.ArrayFilters{
+		Filters: []interface{}{
+			bson.M{"meal._id": mealId},
+		},
+	})
+
+	_, err := r.Collection.UpdateOne(ctx, filter, update, options)
+	return err
+}

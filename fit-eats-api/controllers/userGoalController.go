@@ -41,7 +41,7 @@ func (c *UserGoalController) GetActiveUserGoal(ctx *gin.Context) {
 
 	mainGoal, err := c.UserGoalRepository.GetUserActiveGoalByUserId(timedContext, mongoUserId)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Could not get main goal"})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Could not get active weekly goal"})
 		return
 	}
 

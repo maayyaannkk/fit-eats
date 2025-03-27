@@ -269,3 +269,36 @@ func (c *MealController) CustomizeDayMealPlan(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, gin.H{"mealPlanId": mealPlan.ID, "mainGoalId": mealPlan.MainGoalId, "weeklyGoalId": mealPlan.WeeklyGoalId})
 }
+
+func (c *MealController) ConsumeMeal(ctx *gin.Context) {
+	requiredFields := []string{"mealId"}
+	values := make(map[string]string)
+
+	for _, field := range requiredFields {
+		value, ok := ctx.GetQuery(field)
+		if !ok {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid request format: missing %s", field)})
+			return
+		}
+		values[field] = value
+	}
+
+	mealIdStr := values["mealId"]
+
+	mongoMealId, err := primitive.ObjectIDFromHex(mealIdStr)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid mealId format: must be a valid ObjectId"})
+		return
+	}
+
+	timedContext, cancel := config.GetTimedContext()
+	defer cancel()
+
+	err = c.UserMealRepository.ConsumeSingleMeal(timedContext, mongoMealId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Meal not found"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"sucess": true})
+}

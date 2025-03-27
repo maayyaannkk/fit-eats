@@ -45,6 +45,7 @@ import com.fiteats.app.ui.custom.OutlinedDatePicker
 import com.fiteats.app.ui.custom.OutlinedNumberPicker
 import com.fiteats.app.ui.custom.OutlinedSpinner
 import com.fiteats.app.ui.viewModel.AddWeeklyGoalViewModel
+import com.fiteats.app.utils.removeTime
 import java.util.Calendar
 import java.util.Date
 
@@ -265,8 +266,8 @@ fun AddWeeklyGoalScreen(navController: NavHostController, mainGoalModel: MainGoa
                                     mainGoalId = mainGoalModel.id,
                                     currentWeightInKg = currentWeight.value,
                                     currentFatPercentage = currentFatPercentage.value,
-                                    startDate = startDate.value,
-                                    endDate = endDate.value,
+                                    startDate = startDate.value?.removeTime(),
+                                    endDate = endDate.value?.removeTime(),
                                     dailyMaintenanceCalories = selectedOption.value!!.tdee.toInt(),
                                     targetDailyCalories = macroGoal!!.dailyCalorieIntake.toInt(),
                                     targetDailyMacrosFats = macroGoal!!.macronutrientSplit.fat.totalGrams,

@@ -49,6 +49,7 @@ func SetupMealRoutes(router *gin.Engine, mealController *controllers.MealControl
 	{
 		protected.GET("/getMealPlan", mealController.GetWeeklyMealPlan)
 		protected.POST("/createMealPlan", mealController.CreateWeeklyMealPlan)
-		protected.POST("/customizeMealPlan", mealController.CustomizeDayMealPlan)
+		protected.PUT("/customizeMealPlan", mealController.CustomizeDayMealPlan)
+		protected.PUT("/consumeMeal", mealController.ConsumeMeal)
 	}
 }
