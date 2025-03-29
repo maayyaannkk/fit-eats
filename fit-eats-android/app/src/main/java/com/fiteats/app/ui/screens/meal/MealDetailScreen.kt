@@ -23,7 +23,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -52,8 +51,6 @@ import com.fiteats.app.models.Meal
 import com.fiteats.app.ui.custom.LoadingDialog
 import com.fiteats.app.ui.viewModel.MealDetailViewModel
 
-//TODO share viewmodel
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MealDetailsScreen(navController: NavController, meal: Meal) {
     val viewModel: MealDetailViewModel = viewModel()
@@ -198,7 +195,7 @@ fun MealDetailsScreen(navController: NavController, meal: Meal) {
             Spacer(modifier = Modifier.height(24.dp))
 
             if (!meal.isConsumed) {
-                if (isLoading ) {
+                if (isLoading) {
                     LoadingDialog()
                 } else {
                     Button(

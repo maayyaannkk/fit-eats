@@ -26,7 +26,6 @@ import com.fiteats.app.ui.components.MainGoalCard
 import com.fiteats.app.ui.viewModel.UserGoalViewModel
 import java.util.Date
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyGoalsScreen(onAddWeeklyGoal: (MainGoalModel) -> Unit, onAddMainGoal: () -> Unit) {
     val viewModel: UserGoalViewModel = viewModel()

@@ -1,9 +1,7 @@
 package com.fiteats.app.ui.components
 
-import android.os.Build
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -62,15 +60,12 @@ import com.fiteats.app.ui.screens.meal.NutritionInfo
 import com.fiteats.app.utils.removeTime
 import com.fiteats.app.utils.toDDMMM
 import com.fiteats.app.utils.toEEEEMMMdd
-import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 import kotlin.math.ceil
 
-@RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MealPlanCard(
     mealPlan: MealPlan,
@@ -123,7 +118,6 @@ fun MealPlanCard(
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DayMealCard(
     mealPlan: MealPlan,
@@ -320,7 +314,6 @@ fun MealCard(meal: Meal, onMealClick: (Meal) -> Unit, onDayMealConsume: (String)
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditDayMealDialog(
     dayMeal: DayMeal,

@@ -1,8 +1,6 @@
 package com.fiteats.app.ui.screens.main
 
-import android.os.Build
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
@@ -13,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -40,8 +37,6 @@ import com.fiteats.app.ui.components.MealPlanCard
 import com.fiteats.app.ui.custom.LoadingDialog
 import com.fiteats.app.ui.viewModel.MealPlanViewModel
 
-@RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MealScreen(onMealClick: (Meal) -> Unit) {
     val viewModel: MealPlanViewModel = viewModel()
@@ -115,7 +110,9 @@ fun MealScreen(onMealClick: (Meal) -> Unit) {
                     horizontalAlignment = Alignment.CenterHorizontally // Add this line
                 ) {
                     Text(
-                        modifier = Modifier.fillMaxWidth().padding(16.dp), // Use fillMaxWidth and add padding for better readability
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp), // Use fillMaxWidth and add padding for better readability
                         text = "Create a weekly goal before planning meals",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
@@ -196,7 +193,6 @@ fun CreateMealDialog(
     )
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Preview
 @Composable
 fun MealScreenPreview() {

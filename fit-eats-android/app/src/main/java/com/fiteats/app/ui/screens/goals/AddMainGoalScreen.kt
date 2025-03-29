@@ -44,7 +44,6 @@ import com.fiteats.app.utils.removeTime
 import java.util.Calendar
 import java.util.Date
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddMainGoalScreen(navController: NavController) {
     val viewModel: AddMainGoalViewModel = viewModel()

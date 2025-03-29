@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.fiteats.app"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -40,6 +40,11 @@ android {
         compose = true
         buildConfig = true
     }
+    kotlin {
+        compilerOptions {
+            freeCompilerArgs.add("-Xopt-in=androidx.compose.material3.ExperimentalMaterial3Api")
+        }
+    }
 }
 
 dependencies {
@@ -53,13 +58,13 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
-    implementation (libs.androidx.runtime.livedata)
+    implementation(libs.androidx.runtime.livedata)
 
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.logging.interceptor)
-    implementation (libs.androidx.security.crypto)
+    implementation(libs.androidx.security.crypto)
 
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)

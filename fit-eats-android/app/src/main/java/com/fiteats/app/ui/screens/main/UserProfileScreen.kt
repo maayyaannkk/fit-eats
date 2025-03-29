@@ -62,7 +62,6 @@ import com.fiteats.app.models.UserModel
 import com.fiteats.app.ui.custom.OutlinedSpinner
 import com.fiteats.app.ui.viewModel.MainViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserProfileScreen(onLogout: () -> Unit) {
     val mainViewModel: MainViewModel = viewModel()
