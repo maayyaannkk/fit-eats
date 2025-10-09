@@ -23,6 +23,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -36,6 +37,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -46,6 +48,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import coil3.compose.SubcomposeAsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.fiteats.app.models.Ingredient
 import com.fiteats.app.models.Meal
 import com.fiteats.app.ui.custom.LoadingDialog
@@ -109,6 +114,44 @@ fun MealDetailsScreen(navController: NavController, meal: Meal) {
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState())
         ) {
+            Row {
+                Column {
+                    SubcomposeAsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(meal.imageUrl)
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = "Network Image",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        contentScale = ContentScale.Fit,
+
+                        // Loading composable
+                        loading = {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator()
+                            }
+                        },
+
+                        // Error composable
+                        error = {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "Failed to load image",
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                        }
+                    )
+                }
+            }
             Text(
                 text = meal.name,
                 fontSize = 22.sp,
@@ -285,6 +328,7 @@ fun MealDetailsScreenPreview() {
         rememberNavController(),
         Meal(
             id = "1",
+            imageUrl = "https://www.foodiesfeed.com/wp-content/uploads/2023/09/healthy-food.jpg",
             name = "Grilled Chicken Salad",
             description = "A healthy mix of grilled chicken breast with fresh vegetables and light vinaigrette dressing",
             calories = 450,

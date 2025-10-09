@@ -5,6 +5,7 @@ import android.widget.Toast.LENGTH_SHORT
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -28,7 +29,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -44,6 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -53,6 +55,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
+import coil3.compose.SubcomposeAsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.fiteats.app.models.DayMeal
 import com.fiteats.app.models.Meal
 import com.fiteats.app.models.MealPlan
@@ -211,7 +216,10 @@ fun DayMealCard(
 
     LazyColumn {
         items(currentDayMeal.meals.sortedBy {
-            LocalTime.parse(it.time.trim().replace(Regex("(?i)am"), "AM").replace(Regex("(?i)pm"), "PM"), DateTimeFormatter.ofPattern("h:mm a", Locale.ENGLISH))
+            LocalTime.parse(
+                it.time.trim().replace(Regex("(?i)am"), "AM").replace(Regex("(?i)pm"), "PM"),
+                DateTimeFormatter.ofPattern("h:mm a", Locale.ENGLISH)
+            )
         }, key = { it.id!! }) {
             MealCard(it, onMealClick, onDayMealConsume)
         }
@@ -241,6 +249,44 @@ fun MealCard(meal: Meal, onMealClick: (Meal) -> Unit, onDayMealConsume: (String)
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background)
     ) {
+        Row {
+            Column {
+                SubcomposeAsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(meal.imageUrl)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = "Network Image",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    contentScale = ContentScale.Fit,
+
+                    // Loading composable
+                    loading = {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    },
+
+                    // Error composable
+                    error = {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "Failed to load image",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+                    }
+                )
+            }
+        }
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -248,7 +294,6 @@ fun MealCard(meal: Meal, onMealClick: (Meal) -> Unit, onDayMealConsume: (String)
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-
             Column(
                 modifier = Modifier.weight(0.1f),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -310,6 +355,7 @@ fun MealCard(meal: Meal, onMealClick: (Meal) -> Unit, onDayMealConsume: (String)
                         .size(18.dp)
                 )
             }
+
         }
     }
 }

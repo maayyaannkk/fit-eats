@@ -18,6 +18,8 @@ data class DayMeal(
 
 data class Meal(
     val id: String? = null,
+    @SerializedName("image_url")
+    val imageUrl: String,
     val name: String,
     val description: String,
     val calories: Int,

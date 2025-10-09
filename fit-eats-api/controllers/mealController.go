@@ -100,8 +100,8 @@ func (c *MealController) CreateWeeklyMealPlan(ctx *gin.Context) {
 		return
 	}
 
-	//120 seconds for llm to respond
-	timedContext, cancel := config.GetTimedContext(120)
+	//300 seconds for llm to respond
+	timedContext, cancel := config.GetTimedContext(300)
 	defer cancel()
 
 	user, err := c.UserRepository.GetUserProfileById(timedContext, mongoUserId)
@@ -159,6 +159,48 @@ func (c *MealController) CreateWeeklyMealPlan(ctx *gin.Context) {
 	}
 
 	mealPlan := utils.ParseMealPlanResponse(mongoUserId, mongoMainGoalId, mongoWeeklyGoalId, goal.WeeklyGoals[0].StartDate, result)
+	for j := range mealPlan.DayMeals {
+		dayMealNew := &mealPlan.DayMeals[j]
+		for i := range dayMealNew.Meals {
+			meal := &dayMealNew.Meals[i]
+			var resultFoodImage map[string]any
+			queryParams := map[string]string{
+				"q":      meal.Name,
+				"num":    "1",
+				"apiKey": config.GetConfig().SerperApiKey,
+			}
+
+			errFoodImage := utils.MakeGETRequest(ctx, "https://google.serper.dev/images", queryParams, &resultFoodImage)
+			if errFoodImage != nil {
+				fmt.Println("Error getting image:", errFoodImage)
+				meal.ImageUrl = "https://www.foodiesfeed.com/wp-content/uploads/2023/09/healthy-food.jpg"
+				continue
+			}
+
+			images, ok := resultFoodImage["images"].([]any)
+			if !ok || len(images) == 0 {
+				fmt.Println("No images found for meal:", meal.Name)
+				meal.ImageUrl = "https://www.foodiesfeed.com/wp-content/uploads/2023/09/healthy-food.jpg"
+				continue
+			}
+
+			firstImage, ok := images[0].(map[string]any)
+			if !ok {
+				fmt.Println("Invalid image format for meal:", meal.Name)
+				meal.ImageUrl = "https://www.foodiesfeed.com/wp-content/uploads/2023/09/healthy-food.jpg"
+				continue
+			}
+
+			imageUrl, ok := firstImage["imageUrl"].(string)
+			if !ok {
+				fmt.Println("Image URL not found for meal:", meal.Name)
+				meal.ImageUrl = "https://www.foodiesfeed.com/wp-content/uploads/2023/09/healthy-food.jpg"
+				continue
+			}
+
+			meal.ImageUrl = imageUrl
+		}
+	}
 	err = c.UserMealRepository.CreateWeeklyMealPlan(timedContext, &mealPlan)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate content: " + err.Error()})
@@ -266,6 +308,46 @@ func (c *MealController) CustomizeDayMealPlan(ctx *gin.Context) {
 	}
 
 	dayMealNew := utils.ParseSingleMealPlanResponse(result)
+	for i := range dayMealNew.Meals {
+		meal := &dayMealNew.Meals[i]
+		var resultFoodImage map[string]any
+		queryParams := map[string]string{
+			"q":      meal.Name,
+			"num":    "1",
+			"apiKey": config.GetConfig().SerperApiKey,
+		}
+
+		errFoodImage := utils.MakeGETRequest(ctx, "https://google.serper.dev/images", queryParams, &resultFoodImage)
+		if errFoodImage != nil {
+			fmt.Println("Error getting image:", errFoodImage)
+			meal.ImageUrl = "https://www.foodiesfeed.com/wp-content/uploads/2023/09/healthy-food.jpg"
+			continue
+		}
+
+		images, ok := resultFoodImage["images"].([]any)
+		if !ok || len(images) == 0 {
+			fmt.Println("No images found for meal:", meal.Name)
+			meal.ImageUrl = "https://www.foodiesfeed.com/wp-content/uploads/2023/09/healthy-food.jpg"
+			continue
+		}
+
+		firstImage, ok := images[0].(map[string]any)
+		if !ok {
+			fmt.Println("Invalid image format for meal:", meal.Name)
+			meal.ImageUrl = "https://www.foodiesfeed.com/wp-content/uploads/2023/09/healthy-food.jpg"
+			continue
+		}
+
+		imageUrl, ok := firstImage["imageUrl"].(string)
+		if !ok {
+			fmt.Println("Image URL not found for meal:", meal.Name)
+			meal.ImageUrl = "https://www.foodiesfeed.com/wp-content/uploads/2023/09/healthy-food.jpg"
+			continue
+		}
+
+		meal.ImageUrl = imageUrl
+	}
+
 	err = c.UserMealRepository.UpdateSingleDayMeal(timedContext, mongoMealPlanId, mongodayMealId, dayMealNew.Meals)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate content: " + err.Error()})

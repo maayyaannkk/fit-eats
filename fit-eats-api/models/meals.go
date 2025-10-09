@@ -26,6 +26,7 @@ type DayMeal struct {
 type Meal struct {
 	ID          primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
 	Name        string             `bson:"name" json:"name"`
+	ImageUrl    string             `bson:"image_url" json:"image_url"`
 	Description string             `bson:"description" json:"description"`
 	Calories    int                `bson:"calories" json:"calories"`
 	Carbs       int                `bson:"carbs" json:"carbs"`
