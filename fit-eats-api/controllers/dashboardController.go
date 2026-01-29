@@ -37,13 +37,13 @@ func (c *DashboardController) GetDashboard(ctx *gin.Context) {
 
 	user, err := c.UserRepository.GetUserProfileById(timedContext, mongoUserId)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Could not get user info"})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Complete your profile"})
 		return
 	}
 
 	mainGoal, err := c.UserGoalRepository.GetUserActiveGoalByUserId(timedContext, mongoUserId)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Could not get active goal"})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Create a goal"})
 		return
 	}
 
@@ -51,7 +51,7 @@ func (c *DashboardController) GetDashboard(ctx *gin.Context) {
 
 	dayMeal, err := c.MealRepository.GetSingleDayMealByDate(timedContext, mongoUserId)
 	if err != nil || dayMeal == nil || len(dayMeal.Meals) == 0 {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Could not get active meal plan"})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Create a weekly meal plan"})
 		return
 	}
 
