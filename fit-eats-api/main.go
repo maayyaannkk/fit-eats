@@ -53,6 +53,8 @@ func main() {
 	mealRepo := repositories.NewMealRepository(db)
 	mealController := controllers.NewMealController(userRepo, userGoalRepo, mealRepo)
 
+	dashboardController := controllers.NewDashboardController(userRepo, userGoalRepo, mealRepo)
+
 	// Set up Gin router
 	router := gin.Default()
 
@@ -60,6 +62,7 @@ func main() {
 	routes.SetupUserRoutes(router, userController)
 	routes.SetupUserGoalRoutes(router, userGoalController)
 	routes.SetupMealRoutes(router, mealController)
+	routes.SetupDashboardRoutes(router, dashboardController)
 
 	// Start the server
 	fmt.Println("Server is running on port " + cfg.Port)

@@ -3,6 +3,8 @@ package repositories
 import (
 	"context"
 	"fit-eats-api/models"
+	"fmt"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -70,6 +72,68 @@ func (r *MealRepository) GetSingleDayMeal(ctx context.Context, mainGoalId primit
 	}
 
 	return &mealPlan, nil
+}
+
+func (r *MealRepository) GetSingleDayMealByDate(ctx context.Context, userId primitive.ObjectID) (*models.DayMeal, error) {
+
+	loc, err1 := time.LoadLocation("Asia/Kolkata")
+	if err1 != nil {
+		panic(err1)
+	}
+
+	nowIST := time.Now().In(loc)
+
+	startOfDay := time.Date(
+		nowIST.Year(),
+		nowIST.Month(),
+		nowIST.Day(),
+		0, 0, 0, 0,
+		loc,
+	)
+	endOfDay := startOfDay.Add(24 * time.Hour)
+
+	fmt.Println(startOfDay.String())
+	fmt.Println(endOfDay.String())
+
+	filter := bson.M{
+		"userId": userId,
+		"dayMeals.date": bson.M{
+			"$gte": startOfDay,
+			"$lt":  endOfDay,
+		},
+	}
+
+	projection := bson.M{
+		"dayMeals": bson.M{
+			"$filter": bson.M{
+				"input": "$dayMeals",
+				"as":    "dm",
+				"cond": bson.M{
+					"$and": []bson.M{
+						{"$gte": []any{"$$dm.date", startOfDay}},
+						{"$lt": []any{"$$dm.date", endOfDay}},
+					},
+				},
+			},
+		},
+	}
+
+	var result struct {
+		DayMeals []models.DayMeal `bson:"dayMeals"`
+	}
+
+	err := r.Collection.
+		FindOne(ctx, filter, options.FindOne().SetProjection(projection)).
+		Decode(&result)
+
+	if err == mongo.ErrNoDocuments || len(result.DayMeals) == 0 {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return &result.DayMeals[0], nil
 }
 
 func (r *MealRepository) GetMealPlanMeta(ctx context.Context, mealPlanId primitive.ObjectID) (*models.MealPlan, error) {

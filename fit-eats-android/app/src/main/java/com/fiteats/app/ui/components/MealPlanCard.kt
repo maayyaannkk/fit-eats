@@ -44,6 +44,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -94,10 +95,9 @@ fun MealPlanCard(
                 Icon(
                     imageVector = Icons.AutoMirrored.Default.ArrowBackIos,
                     contentDescription = "Previous",
-                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0f),
                     modifier = Modifier
                         .size(15.dp)
-                        .clickable { TODO() }
                 )
             }
 
@@ -111,10 +111,9 @@ fun MealPlanCard(
                 Icon(
                     imageVector = Icons.AutoMirrored.Default.ArrowForwardIos,
                     contentDescription = "Next",
-                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0f),
                     modifier = Modifier
                         .size(15.dp)
-                        .clickable { TODO() }
                 )
             }
         }
@@ -189,7 +188,7 @@ fun DayMealCard(
     ) {
         Button(
             onClick = {
-                if (currentDayMeal.meals.count { it.isConsumed == true } == 0)
+                if (currentDayMeal.meals.count { it.isConsumed } == 0)
                     showDialog.value = true
                 else Toast.makeText(
                     context,
@@ -258,9 +257,11 @@ fun MealCard(meal: Meal, onMealClick: (Meal) -> Unit, onDayMealConsume: (String)
                         .build(),
                     contentDescription = "Network Image",
                     modifier = Modifier
+                        .height(300.dp)
                         .fillMaxWidth()
-                        .padding(8.dp),
-                    contentScale = ContentScale.Fit,
+                        .padding(8.dp)
+                        .clip(RoundedCornerShape(12.dp)),
+                    contentScale = ContentScale.FillWidth,
 
                     // Loading composable
                     loading = {

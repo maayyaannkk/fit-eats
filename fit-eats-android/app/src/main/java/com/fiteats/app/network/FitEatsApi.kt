@@ -54,6 +54,11 @@ interface FitEatsApi {
     suspend fun getProfile(@Query("emailId") emailId: String): Response<JsonObject>
     //endregion
 
+    //region dashboard
+    @GET("getDashboard")
+    suspend fun getDashboard(@Query("userId") userId: String): Response<JsonObject>
+    //endregion
+
     //region goals
     @POST("registerMainGoal")
     suspend fun registerMainGoal(@Body goalModel: MainGoalModel): Response<JsonObject>

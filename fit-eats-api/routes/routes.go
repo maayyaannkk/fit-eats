@@ -53,3 +53,11 @@ func SetupMealRoutes(router *gin.Engine, mealController *controllers.MealControl
 		protected.PUT("/consumeMeal", mealController.ConsumeMeal)
 	}
 }
+
+func SetupDashboardRoutes(router *gin.Engine, dashboardController *controllers.DashboardController) {
+	protected := router.Group("/api")
+	protected.Use(middleware.AuthMiddleware()) // Apply JWT auth middleware
+	{
+		protected.GET("/getDashboard", dashboardController.GetDashboard)
+	}
+}
