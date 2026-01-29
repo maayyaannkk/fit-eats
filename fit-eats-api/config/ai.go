@@ -34,7 +34,7 @@ func getBaseModel() genai.GenerativeModel {
 		log.Fatalf("Error creating client: %v", err)
 	}
 
-	baseModel := client.GenerativeModel("gemini-2.0-flash")
+	baseModel := client.GenerativeModel("gemini-2.5-flash-lite")
 	baseModel.SetTemperature(0)
 	baseModel.SetTopK(40)
 	baseModel.SetTopP(0.95)

@@ -37,7 +37,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.SubcomposeAsyncImage
 import coil3.request.ImageRequest
@@ -86,10 +89,22 @@ fun HomeScreen(onMealClick: (Meal) -> Unit) {
             }
 
             apiError != null -> {
-                Text(
-                    text = apiError ?: "Unknown error",
-                    modifier = Modifier.padding(16.dp)
-                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValue),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = apiError ?: "Unknown error",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
 
             dashboard != null -> {
